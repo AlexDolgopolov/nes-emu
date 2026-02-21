@@ -40,7 +40,10 @@ RetAddress addrmode_ZPY(CpuStateTypedef* cpu){
     return retval;
 } // Zero Page, Y
 RetAddress addrmode_REL(CpuStateTypedef* cpu){
-    RetAddress retval = {.address = cpu->PC+1, .page_crossing = false};
+    int8_t pc_bias = read_ram(cpu->PC+1);
+    uint16_t rel_address = cpu->PC+2+pc_bias;
+    RetAddress retval = {.address = rel_address, .page_crossing = false};
+    if((retval.address & 0xff00) != (cpu->PC+2 & 0xff00)) retval.page_crossing = true;
     return retval;
 } // Relative
 RetAddress addrmode_IND(CpuStateTypedef* cpu){

@@ -11,6 +11,8 @@ set(SOURCES
     src/cpu.c
     src/6502_mem.c
     src/cpu_decoder.c
+    src/addrmode.c
+    src/decode_lut.c
 )
 
 add_executable(my_app ${SOURCES})

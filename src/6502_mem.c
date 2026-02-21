@@ -35,3 +35,12 @@ void write_ram(uint16_t addr, uint8_t val){
         while(1);
     }
 }
+
+void push_stack(uint8_t* sp, uint8_t data){
+    write_ram(0x0100 + *sp, data);
+    *sp--;
+}
+uint8_t pop_stack(uint8_t* sp){
+    *sp++;
+    return(read_ram(0x0100 + *sp));
+}
