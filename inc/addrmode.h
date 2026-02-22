@@ -21,7 +21,6 @@ RetAddress addrmode_ABSY(CpuStateTypedef* cpu);
 RetAddress addrmode_ZP(CpuStateTypedef* cpu);
 RetAddress addrmode_ZPX(CpuStateTypedef* cpu);
 RetAddress addrmode_ZPY(CpuStateTypedef* cpu);
-RetAddress addrmode_REL(CpuStateTypedef* cpu);
 RetAddress addrmode_IND(CpuStateTypedef* cpu);
 RetAddress addrmode_INDX(CpuStateTypedef* cpu);
 RetAddress addrmode_INDY(CpuStateTypedef* cpu);
