@@ -10,6 +10,8 @@ RetAddress addrmode_IMM(CpuStateTypedef* cpu){
     return retval;
 } // Immediate
 
+#define addrmode_REL addrmode_IMM
+
 RetAddress addrmode_ABS(CpuStateTypedef* cpu){
     RetAddress retval = {.address = ((cpu->PC+2) << 8) | (cpu->PC+1), .page_crossing = false};
     return retval;

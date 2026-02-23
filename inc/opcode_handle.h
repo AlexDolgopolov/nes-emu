@@ -9,6 +9,7 @@
 uint8_t opcode_ADC(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_AND(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_ASL(CpuStateTypedef* cpu, uint16_t mem_idx);
+uint8_t opcode_ASL_A(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_BCC(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_BCS(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_BEQ(CpuStateTypedef* cpu, uint16_t mem_idx);
@@ -38,7 +39,8 @@ uint8_t opcode_JSR(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_LDA(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_LDX(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_LDY(CpuStateTypedef* cpu, uint16_t mem_idx);
-uint8_t opcode_ASL(CpuStateTypedef* cpu, uint16_t mem_idx);
+uint8_t opcode_ASR(CpuStateTypedef* cpu, uint16_t mem_idx);
+uint8_t opcode_ASR_A(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_NOP(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_ORA(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_PHA(CpuStateTypedef* cpu, uint16_t mem_idx);
@@ -46,7 +48,9 @@ uint8_t opcode_PHP(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_PLA(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_PLP(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_ROL(CpuStateTypedef* cpu, uint16_t mem_idx);
+uint8_t opcode_ROL_A(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_ROR(CpuStateTypedef* cpu, uint16_t mem_idx);
+uint8_t opcode_ROR_A(CpuStateTypedef* cpu, uint16_t mem_idx){
 uint8_t opcode_RTI(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_RTS(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_SBC(CpuStateTypedef* cpu, uint16_t mem_idx);

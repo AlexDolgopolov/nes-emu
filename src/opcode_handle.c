@@ -34,12 +34,24 @@ uint8_t opcode_ASL(CpuStateTypedef* cpu, uint16_t mem_idx){
  return 0;
 }
 
+uint8_t opcode_ASL_A(CpuStateTypedef* cpu, uint16_t mem_idx){
+    // Arithmetic Shift Left - Accumulator
+    uint8_t mem_val = cpu->A;
+    mem_val = mem_val << 1;
+    cpu->P_bit.C = (mem_val & (1 << 7)) != 0;
+    cpu->P_bit.Z = mem_val == 0;
+    cpu->P_bit.N = (mem_val & (1<<7)) != 0;
+    cpu->A = mem_val;
+    return 0;
+}
+
 uint8_t opcode_BCC(CpuStateTypedef* cpu, uint16_t mem_idx){
-// Branch if Carry Clear
+    // Branch if Carry Clear
     if(cpu->P_bit.C == 0){
         uint8_t mem_val = read_ram(mem_idx);
+        bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
         cpu->PC = cpu->PC + mem_val + 2;
-        return 1;
+        return page_cross_branch ? 2 : 1;
     } else return 0;
 }
 
@@ -47,8 +59,9 @@ uint8_t opcode_BCS(CpuStateTypedef* cpu, uint16_t mem_idx){
 // Branch if Carry Set
     if(cpu->P_bit.C == 1){
         uint8_t mem_val = read_ram(mem_idx);
+        bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
         cpu->PC = cpu->PC + mem_val + 2;
-        return 1;
+        return page_cross_branch ? 2 : 1;
     } else return 0;
 }
 
@@ -56,8 +69,9 @@ uint8_t opcode_BEQ(CpuStateTypedef* cpu, uint16_t mem_idx){
 // Branch if Equal
     if(cpu->P_bit.Z == 1){
         uint8_t mem_val = read_ram(mem_idx);
+        bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
         cpu->PC = cpu->PC + mem_val + 2;
-        return 1;
+        return page_cross_branch ? 2 : 1;
     } else return 0;
 }
 
@@ -75,8 +89,9 @@ uint8_t opcode_BMI(CpuStateTypedef* cpu, uint16_t mem_idx){
 // Branch if Minus
     if(cpu->P_bit.N == 1){
         uint8_t mem_val = read_ram(mem_idx);
+        bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
         cpu->PC = cpu->PC + mem_val + 2;
-        return 1;
+        return page_cross_branch ? 2 : 1;
     } else return 0;
 }
 
@@ -84,8 +99,9 @@ uint8_t opcode_BNE(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Branch if Not Equal
     if(cpu->P_bit.Z == 0){
         uint8_t mem_val = read_ram(mem_idx);
+        bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
         cpu->PC = cpu->PC + mem_val + 2;
-        return 1;
+        return page_cross_branch ? 2 : 1;
     } else return 0;
 }
 
@@ -93,8 +109,9 @@ uint8_t opcode_BPL(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Branch if Plus
     if(cpu->P_bit.N == 0){
         uint8_t mem_val = read_ram(mem_idx);
+        bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
         cpu->PC = cpu->PC + mem_val + 2;
-        return 1;
+        return page_cross_branch ? 2 : 1;
     } else return 0;
 }
 
@@ -113,8 +130,9 @@ uint8_t opcode_BVC(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Branch if Overflow Clear
     if(cpu->P_bit.V == 0){
         uint8_t mem_val = read_ram(mem_idx);
+        bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
         cpu->PC = cpu->PC + mem_val + 2;
-        return 1;
+        return page_cross_branch ? 2 : 1;
     } else return 0;
 }
 
@@ -122,8 +140,9 @@ uint8_t opcode_BVS(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Branch if Overflow Set
     if(cpu->P_bit.V == 1){
         uint8_t mem_val = read_ram(mem_idx);
+        bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
         cpu->PC = cpu->PC + mem_val + 2;
-        return 1;
+        return page_cross_branch ? 2 : 1;
     } else return 0;
 }
 
@@ -302,6 +321,17 @@ uint8_t opcode_ASR(CpuStateTypedef* cpu, uint16_t mem_idx){
     return 0;
 }
 
+uint8_t opcode_ASR_A(CpuStateTypedef* cpu, uint16_t mem_idx){
+    // Arithmetic Shift Right - Accumulator
+    uint8_t mem_val = cpu->A;
+    mem_val = mem_val >> 1;
+    cpu->P_bit.C = (mem_val & (1 << 7)) != 0;
+    cpu->P_bit.Z = mem_val == 0;
+    cpu->P_bit.N = (mem_val & (1<<7)) != 0;
+    cpu->A = mem_val;
+    return 0;
+}
+
 uint8_t opcode_NOP(CpuStateTypedef* cpu, uint16_t mem_idx){
     // No Operation
     return 0;
@@ -349,6 +379,18 @@ uint8_t opcode_ROL(CpuStateTypedef* cpu, uint16_t mem_idx){
     mem_val = mem_val << 1;
     mem_val |= cpu->P_bit.C & 0x1;
     cpu->P_bit.C = carry;
+    write_ram(mem_idx, mem_val);
+    return 0;
+}
+
+uint8_t opcode_ROL_A(CpuStateTypedef* cpu, uint16_t mem_idx){
+    // Rotate Left - Accumulator
+    uint8_t mem_val = cpu->A
+    bool carry = (mem_val & (1 << 7)) != 0;
+    mem_val = mem_val << 1;
+    mem_val |= cpu->P_bit.C & 0x1;
+    cpu->P_bit.C = carry;
+    cpu->A = mem_val;
     return 0;
 }
 
@@ -359,6 +401,18 @@ uint8_t opcode_ROR(CpuStateTypedef* cpu, uint16_t mem_idx){
     mem_val = mem_val >> 1;
     mem_val |= (cpu->P_bit.C & 0x1) << 7;
     cpu->P_bit.C = carry;
+    write_ram(mem_idx, mem_val);
+    return 0;
+}
+
+uint8_t opcode_ROR_A(CpuStateTypedef* cpu, uint16_t mem_idx){
+    // Rotate Right - Accumulator
+    uint8_t mem_val = cpu->A;
+    bool carry = (mem_val & 0b1) != 0;
+    mem_val = mem_val >> 1;
+    mem_val |= (cpu->P_bit.C & 0x1) << 7;
+    cpu->P_bit.C = carry;
+    cpu->A = mem_val;
     return 0;
 }
 
@@ -380,21 +434,21 @@ uint8_t opcode_RTS(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_SBC(CpuStateTypedef* cpu, uint16_t mem_idx){
- // Substract with Carry
- uint8_t mem_val = read_ram(mem_idx);
- uint16_t accumulator_val = cpu->A + ~mem_val + (cpu->P_bit.C);
- cpu->P_bit.C = (accumulator_val > cpu->A);
- cpu->P_bit.Z = accumulator_val == 0;
- cpu->P_bit.V = (accumulator_val ^ cpu->A) & (accumulator_val ^ ~mem_val) & 0x80;
- cpu->P_bit.N = (accumulator_val & (1<<7)) != 0;
- cpu->A = accumulator_val;
- return 0;
+    // Substract with Carry
+    uint8_t mem_val = read_ram(mem_idx);
+    uint16_t accumulator_val = cpu->A + ~mem_val + (cpu->P_bit.C);
+    cpu->P_bit.C = (accumulator_val > cpu->A);
+    cpu->P_bit.Z = accumulator_val == 0;
+    cpu->P_bit.V = (accumulator_val ^ cpu->A) & (accumulator_val ^ ~mem_val) & 0x80;
+    cpu->P_bit.N = (accumulator_val & (1<<7)) != 0;
+    cpu->A = accumulator_val;
+    return 0;
 }
 
 uint8_t opcode_SEC(CpuStateTypedef* cpu, uint16_t mem_idx){
- // Set Carry
- cpu->P_bit.C = 1;
- return 0;
+    // Set Carry
+    cpu->P_bit.C = 1;
+    return 0;
 }
 
 uint8_t opcode_SED(CpuStateTypedef* cpu, uint16_t mem_idx){
