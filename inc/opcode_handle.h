@@ -50,7 +50,7 @@ uint8_t opcode_PLP(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_ROL(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_ROL_A(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_ROR(CpuStateTypedef* cpu, uint16_t mem_idx);
-uint8_t opcode_ROR_A(CpuStateTypedef* cpu, uint16_t mem_idx){
+uint8_t opcode_ROR_A(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_RTI(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_RTS(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_SBC(CpuStateTypedef* cpu, uint16_t mem_idx);

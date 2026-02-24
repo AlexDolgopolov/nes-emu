@@ -15,6 +15,7 @@ typedef struct {
 
 RetAddress addrmode_IMP(CpuStateTypedef* cpu);
 RetAddress addrmode_IMM(CpuStateTypedef* cpu);
+#define addrmode_REL addrmode_IMM;
 RetAddress addrmode_ABS(CpuStateTypedef* cpu);
 RetAddress addrmode_ABSX(CpuStateTypedef* cpu);
 RetAddress addrmode_ABSY(CpuStateTypedef* cpu);

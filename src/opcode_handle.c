@@ -7,7 +7,7 @@ uint8_t opcode_ADC(CpuStateTypedef* cpu, uint16_t mem_idx){
  cpu->P_bit.C = (accumulator_val > 0xff);
  uint8_t accumulator = accumulator_val & 0xff;
  cpu->P_bit.Z = accumulator == 0;
- cpu->P_bit.V = (accumulator ^ cpu->A) & (accumulator ^ mem_val) & 0x80;
+ cpu->P_bit.V = ((accumulator ^ cpu->A) & (accumulator ^ mem_val) & 0x80) != 0;
  cpu->P_bit.N = (accumulator & (1<<7)) != 0;
  cpu->A = accumulator;
  return 0;
@@ -205,7 +205,7 @@ uint8_t opcode_DEC(CpuStateTypedef* cpu, uint16_t mem_idx){
     uint8_t mem_val = read_ram(mem_idx);
     mem_val--;
     cpu->P_bit.Z = (mem_val == 0x0);
-    cpu->P_bit.N = (mem_val & 1 << 7);
+    cpu->P_bit.N = (mem_val & 1 << 7) != 0;
     write_ram(mem_idx, mem_val);
     return 0;
 }
@@ -215,7 +215,7 @@ uint8_t opcode_DEX(CpuStateTypedef* cpu, uint16_t mem_idx){
     uint8_t mem_val = cpu->X;
     mem_val--;
     cpu->P_bit.Z = (mem_val == 0x0);
-    cpu->P_bit.N = (mem_val & 1 << 7);
+    cpu->P_bit.N = (mem_val & 1 << 7) != 0;
     cpu->X = mem_val;
     return 0;
 }
@@ -225,7 +225,7 @@ uint8_t opcode_DEY(CpuStateTypedef* cpu, uint16_t mem_idx){
     uint8_t mem_val = cpu->Y;
     mem_val--;
     cpu->P_bit.Z = (mem_val == 0x0);
-    cpu->P_bit.N = (mem_val & 1 << 7);
+    cpu->P_bit.N = (mem_val & 1 << 7) != 0;
     cpu->Y = mem_val;
     return 0;
 }
@@ -245,7 +245,7 @@ uint8_t opcode_INC(CpuStateTypedef* cpu, uint16_t mem_idx){
     uint8_t mem_val = read_ram(mem_idx);
     mem_val++;
     cpu->P_bit.Z = (mem_val == 0x0);
-    cpu->P_bit.N = (mem_val & 1 << 7);
+    cpu->P_bit.N = (mem_val & 1 << 7) != 0;
     write_ram(mem_idx, mem_val);
     return 0;
 }
@@ -255,7 +255,7 @@ uint8_t opcode_INX(CpuStateTypedef* cpu, uint16_t mem_idx){
     uint8_t mem_val = cpu->X;
     mem_val++;
     cpu->P_bit.Z = (mem_val == 0x0);
-    cpu->P_bit.N = (mem_val & 1 << 7);
+    cpu->P_bit.N = (mem_val & 1 << 7) != 0;
     cpu->X = mem_val;
     return 0;
 }
@@ -265,7 +265,7 @@ uint8_t opcode_INY(CpuStateTypedef* cpu, uint16_t mem_idx){
     uint8_t mem_val = cpu->Y;
     mem_val++;
     cpu->P_bit.Z = (mem_val == 0x0);
-    cpu->P_bit.N = (mem_val & 1 << 7);
+    cpu->P_bit.N = (mem_val & 1 << 7) != 0;
     cpu->Y = mem_val;
     return 0;
 }
@@ -385,7 +385,7 @@ uint8_t opcode_ROL(CpuStateTypedef* cpu, uint16_t mem_idx){
 
 uint8_t opcode_ROL_A(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Rotate Left - Accumulator
-    uint8_t mem_val = cpu->A
+    uint8_t mem_val = cpu->A;
     bool carry = (mem_val & (1 << 7)) != 0;
     mem_val = mem_val << 1;
     mem_val |= cpu->P_bit.C & 0x1;
@@ -439,7 +439,7 @@ uint8_t opcode_SBC(CpuStateTypedef* cpu, uint16_t mem_idx){
     uint16_t accumulator_val = cpu->A + ~mem_val + (cpu->P_bit.C);
     cpu->P_bit.C = (accumulator_val > cpu->A);
     cpu->P_bit.Z = accumulator_val == 0;
-    cpu->P_bit.V = (accumulator_val ^ cpu->A) & (accumulator_val ^ ~mem_val) & 0x80;
+    cpu->P_bit.V = ((accumulator_val ^ cpu->A) & (accumulator_val ^ mem_val) & 0x80) != 0;;
     cpu->P_bit.N = (accumulator_val & (1<<7)) != 0;
     cpu->A = accumulator_val;
     return 0;

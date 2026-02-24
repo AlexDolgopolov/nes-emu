@@ -69,23 +69,23 @@ void decode_lut_init(CpuStateTypedef* cpu){
     opcode_lut[0x31].addrmode = addrmode_INDY;
     opcode_lut[0x31].cycles = 5;
     // ASL
-    opcode_lut[0x0A].operate = opcode_AND_A;
+    opcode_lut[0x0A].operate = opcode_ASL_A;
     opcode_lut[0x0A].addrmode = addrmode_IMP;
     opcode_lut[0x0A].cycles = 2;
 
-    opcode_lut[0x06].operate = opcode_AND;
+    opcode_lut[0x06].operate = opcode_ASL;
     opcode_lut[0x06].addrmode = addrmode_ZP;
     opcode_lut[0x06].cycles = 5;
 
-    opcode_lut[0x16].operate = opcode_AND;
+    opcode_lut[0x16].operate = opcode_ASL;
     opcode_lut[0x16].addrmode = addrmode_ZPX;
     opcode_lut[0x16].cycles = 6;
 
-    opcode_lut[0x0E].operate = opcode_AND;
+    opcode_lut[0x0E].operate = opcode_ASL;
     opcode_lut[0x0E].addrmode = addrmode_ABS;
     opcode_lut[0x0E].cycles = 6;
 
-    opcode_lut[0x1E].operate = opcode_AND;
+    opcode_lut[0x1E].operate = opcode_ASL;
     opcode_lut[0x1E].addrmode = addrmode_ABSX;
     opcode_lut[0x1E].cycles = 7;
     // BCC
@@ -262,39 +262,39 @@ void decode_lut_init(CpuStateTypedef* cpu){
     opcode_lut[0x51].cycles = 5;
     //INC
     opcode_lut[0xE6].operate = opcode_INC;
-    opcode_lut[0xE6].addrmode = addrmode_ZP
+    opcode_lut[0xE6].addrmode = addrmode_ZP;
     opcode_lut[0xE6].cycles = 5;
 
     opcode_lut[0xF6].operate = opcode_INC;
-    opcode_lut[0xF6].addrmode = addrmode_ZPX
+    opcode_lut[0xF6].addrmode = addrmode_ZPX;
     opcode_lut[0xF6].cycles = 6;
 
     opcode_lut[0xEE].operate = opcode_INC;
-    opcode_lut[0xEE].addrmode = addrmode_ABS
+    opcode_lut[0xEE].addrmode = addrmode_ABS;
     opcode_lut[0xEE].cycles = 6;
 
     opcode_lut[0xFE].operate = opcode_INC;
-    opcode_lut[0xFE].addrmode = addrmode_ABSX
+    opcode_lut[0xFE].addrmode = addrmode_ABSX;
     opcode_lut[0xFE].cycles = 7;
     //INX
     opcode_lut[0xE8].operate = opcode_INX;
-    opcode_lut[0xE8].addrmode = addrmode_IMP
+    opcode_lut[0xE8].addrmode = addrmode_IMP;
     opcode_lut[0xE8].cycles = 2;
     //INY
     opcode_lut[0xC8].operate = opcode_INY;
-    opcode_lut[0xC8].addrmode = addrmode_IMP
+    opcode_lut[0xC8].addrmode = addrmode_IMP;
     opcode_lut[0xC8].cycles = 2;
     //JMP
     opcode_lut[0x4C].operate = opcode_JMP;
-    opcode_lut[0x4C].addrmode = addrmode_ABS
+    opcode_lut[0x4C].addrmode = addrmode_ABS;
     opcode_lut[0x4C].cycles = 3;
 
     opcode_lut[0x6C].operate = opcode_JMP;
-    opcode_lut[0x6C].addrmode = addrmode_IND
+    opcode_lut[0x6C].addrmode = addrmode_IND;
     opcode_lut[0x6C].cycles = 5;
     //JSR
     opcode_lut[0x20].operate = opcode_JSR;
-    opcode_lut[0x20].addrmode = addrmode_ABS
+    opcode_lut[0x20].addrmode = addrmode_ABS;
     opcode_lut[0x20].cycles = 6;
     //LDA
     opcode_lut[0xA9].operate = opcode_LDA;
@@ -302,7 +302,7 @@ void decode_lut_init(CpuStateTypedef* cpu){
     opcode_lut[0xA9].cycles = 2;
 
     opcode_lut[0xA5].operate = opcode_LDA;
-    opcode_lut[0xA5].addrmode = addrmode_ZP
+    opcode_lut[0xA5].addrmode = addrmode_ZP;
     opcode_lut[0xA5].cycles = 3;
 
     opcode_lut[0xB5].operate = opcode_LDA;
@@ -310,24 +310,63 @@ void decode_lut_init(CpuStateTypedef* cpu){
     opcode_lut[0xB5].cycles = 4;
 
     opcode_lut[0xAD].operate = opcode_LDA;
-    opcode_lut[0xAD].addrmode = addrmode_ABS
+    opcode_lut[0xAD].addrmode = addrmode_ABS;
     opcode_lut[0xAD].cycles = 4;
 
     opcode_lut[0xBD].operate = opcode_LDA;
-    opcode_lut[0xBD].addrmode = addrmode_ABSX
+    opcode_lut[0xBD].addrmode = addrmode_ABSX;
     opcode_lut[0xBD].cycles = 4;
 
     opcode_lut[0xB9].operate = opcode_LDA;
-    opcode_lut[0xB9].addrmode = addrmode_ABSY
+    opcode_lut[0xB9].addrmode = addrmode_ABSY;
     opcode_lut[0xB9].cycles = 4;
 
     opcode_lut[0xA1].operate = opcode_LDA;
-    opcode_lut[0xA1].addrmode = addrmode_INDX
+    opcode_lut[0xA1].addrmode = addrmode_INDX;
     opcode_lut[0xA1].cycles = 6;
 
     opcode_lut[0xB1].operate = opcode_LDA;
-    opcode_lut[0xB1].addrmode = addrmode_INDY
+    opcode_lut[0xB1].addrmode = addrmode_INDY;
     opcode_lut[0xB1].cycles = 5;
+    // LDX
+    opcode_lut[0xA2].operate = opcode_LDX;
+    opcode_lut[0xA2].addrmode = addrmode_IMM;
+    opcode_lut[0xA2].cycles = 2;
 
+    opcode_lut[0xA6].operate = opcode_LDX;
+    opcode_lut[0xA6].addrmode = addrmode_ZP;
+    opcode_lut[0xA6].cycles = 3;
+
+    opcode_lut[0xB6].operate = opcode_LDX;
+    opcode_lut[0xB6].addrmode = addrmode_ZPY;
+    opcode_lut[0xB6].cycles = 4;
+
+    opcode_lut[0xAE].operate = opcode_LDX;
+    opcode_lut[0xAE].addrmode = addrmode_ABS;
+    opcode_lut[0xAE].cycles = 4;
+
+    opcode_lut[0xBE].operate = opcode_LDX;
+    opcode_lut[0xBE].addrmode = addrmode_ABSY;
+    opcode_lut[0xBE].cycles = 4;
+    // LDY
+    opcode_lut[0xA0].operate = opcode_LDY;
+    opcode_lut[0xA0].addrmode = addrmode_IMM;
+    opcode_lut[0xA0].cycles = 2;
+
+    opcode_lut[0xA4].operate = opcode_LDY;
+    opcode_lut[0xA4].addrmode = addrmode_ZP;
+    opcode_lut[0xA4].cycles = 3;
+
+    opcode_lut[0xB4].operate = opcode_LDY;
+    opcode_lut[0xB4].addrmode = addrmode_ZPY;
+    opcode_lut[0xB4].cycles = 4;
+
+    opcode_lut[0xAC].operate = opcode_LDY;
+    opcode_lut[0xAC].addrmode = addrmode_ABS;
+    opcode_lut[0xAC].cycles = 4;
+
+    opcode_lut[0xBC].operate = opcode_LDY;
+    opcode_lut[0xBC].addrmode = addrmode_ABSY;
+    opcode_lut[0xBC].cycles = 4;
 
 }
