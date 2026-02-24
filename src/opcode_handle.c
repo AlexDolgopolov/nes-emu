@@ -1,5 +1,11 @@
 #include "opcode_handle.h"
 
+uint8_t opcode_ILL(CpuStateTypedef* cpu, uint16_t mem_idx){
+ // Illegal Insruction (This is not official opcode, but may be helpfull for debug)
+    while(1);
+    return 0;
+}
+
 uint8_t opcode_ADC(CpuStateTypedef* cpu, uint16_t mem_idx){
  // Add with Carry
  uint8_t mem_val = read_ram(mem_idx);
