@@ -1,0 +1,1 @@
+/usr/bin/cc "CMakeFiles/nes-emu-test.dir/src/main.c.o" -o nes-emu-test  ../cJson/build/libcjson.a 

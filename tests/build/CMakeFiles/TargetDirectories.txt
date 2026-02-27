@@ -1,0 +1,3 @@
+/home/dolgopolov/nes-emu/tests/build/CMakeFiles/nes-emu-test.dir
+/home/dolgopolov/nes-emu/tests/build/CMakeFiles/edit_cache.dir
+/home/dolgopolov/nes-emu/tests/build/CMakeFiles/rebuild_cache.dir
