@@ -1,3 +1,3 @@
-./build/*
-./roms/*
-./tests/*
+build\*
+roms\*
+tests\target-test\*

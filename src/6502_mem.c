@@ -1,6 +1,6 @@
 #include "6502_mem.h"
 
-uint8_t cpu_ram[2048];
+uint8_t cpu_ram[2048] = {0};
 
 uint8_t read_ram(uint16_t addr){
     if((addr >= 0x0000 && addr < 0x2000)){
@@ -15,6 +15,7 @@ uint8_t read_ram(uint16_t addr){
         while(1);
     } else {
         // UNMAPPED
+        return(0);
         while(1);
     }
 }
@@ -32,7 +33,6 @@ void write_ram(uint16_t addr, uint8_t val){
         while(1);
     } else {
         // UNMAPPED
-        while(1);
     }
 }
 
@@ -44,3 +44,4 @@ uint8_t pop_stack(uint8_t* sp){
     *sp = (*sp)++;
     return(read_ram(0x0100 + *sp));
 }
+

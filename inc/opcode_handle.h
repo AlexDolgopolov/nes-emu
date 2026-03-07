@@ -5,7 +5,7 @@
 #include "cpu.h"
 #include "6502_mem.h"
 
-
+uint8_t opcode_ILL(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_ADC(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_AND(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_ASL(CpuStateTypedef* cpu, uint16_t mem_idx);
@@ -39,8 +39,8 @@ uint8_t opcode_JSR(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_LDA(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_LDX(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_LDY(CpuStateTypedef* cpu, uint16_t mem_idx);
-uint8_t opcode_ASR(CpuStateTypedef* cpu, uint16_t mem_idx);
-uint8_t opcode_ASR_A(CpuStateTypedef* cpu, uint16_t mem_idx);
+uint8_t opcode_LSR(CpuStateTypedef* cpu, uint16_t mem_idx);
+uint8_t opcode_LSR_A(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_NOP(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_ORA(CpuStateTypedef* cpu, uint16_t mem_idx);
 uint8_t opcode_PHA(CpuStateTypedef* cpu, uint16_t mem_idx);

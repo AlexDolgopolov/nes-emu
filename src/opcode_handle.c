@@ -316,8 +316,8 @@ uint8_t opcode_LDY(CpuStateTypedef* cpu, uint16_t mem_idx){
     return 0;
 }
 
-uint8_t opcode_ASR(CpuStateTypedef* cpu, uint16_t mem_idx){
-    // Arithmetic Shift Right
+uint8_t opcode_LSR(CpuStateTypedef* cpu, uint16_t mem_idx){
+    // Logical Shift Right
     uint8_t mem_val = read_ram(mem_idx);
     mem_val = mem_val >> 1;
     cpu->P_bit.C = (mem_val & (1 << 7)) != 0;
@@ -327,8 +327,8 @@ uint8_t opcode_ASR(CpuStateTypedef* cpu, uint16_t mem_idx){
     return 0;
 }
 
-uint8_t opcode_ASR_A(CpuStateTypedef* cpu, uint16_t mem_idx){
-    // Arithmetic Shift Right - Accumulator
+uint8_t opcode_LSR_A(CpuStateTypedef* cpu, uint16_t mem_idx){
+    // Logical Shift Right - Accumulator
     uint8_t mem_val = cpu->A;
     mem_val = mem_val >> 1;
     cpu->P_bit.C = (mem_val & (1 << 7)) != 0;
@@ -447,7 +447,7 @@ uint8_t opcode_SBC(CpuStateTypedef* cpu, uint16_t mem_idx){
     cpu->P_bit.Z = accumulator_val == 0;
     cpu->P_bit.V = ((accumulator_val ^ cpu->A) & (accumulator_val ^ mem_val) & 0x80) != 0;;
     cpu->P_bit.N = (accumulator_val & (1<<7)) != 0;
-    cpu->A = accumulator_val;
+    cpu->A = (uint8_t)accumulator_val;
     return 0;
 }
 
