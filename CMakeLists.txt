@@ -14,6 +14,7 @@ set(SOURCES
     src/addrmode.c
     src/decode_lut.c
     src/opcode_handle.c
+    src/cli.c
 )
 
 add_executable(my_app ${SOURCES})
