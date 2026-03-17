@@ -12,4 +12,6 @@ typedef struct  {
     uint8_t cycles;        // Базовое количество циклов
 } Instruction;
 
+Instruction get_instruction(uint8_t idx);
+
 #endif

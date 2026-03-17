@@ -1,5 +1,8 @@
 #include <cpu.h>
 #include <6502_mem.h>
+#include <stdio.h>
+#include <addrmode.h>
+#include <decode_lut.h>
 
 void cpu_powerup(CpuStateTypedef* cpu){
     cpu->halt_cycle = 0;
@@ -22,6 +25,14 @@ void cpu_reset(CpuStateTypedef* cpu){
 }
 
 void cpu_tick(CpuStateTypedef* cpu){
-
-
+    printf("start tick\n");
+    uint16_t address = cpu->PC;
+    printf("address = %x\n", address);
+    uint8_t cmd = read_ram(address);
+    printf("cmd = %x\n", cmd);
+    Instruction instr = get_instruction(cmd);
+    RetAddress  i_addr = instr.addrmode(cpu);
+    //execute
+    instr.operate(cpu, i_addr.address);
+    printf("end tick\n");
 }

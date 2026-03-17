@@ -31,7 +31,7 @@ def wait_msg(proc, msg):
 
 
 def send_msg(proc, msg):
-    print(f"send: {msg}\n")
+#    print(f"send: {msg}\n")
     proc.stdin.write(f"{msg}\n")
     proc.stdin.flush()
 
@@ -49,7 +49,14 @@ for filename in files:
                     print("ram")
                     for ramval in value:
                         print(f"{hex(ramval[0])}, {hex(ramval[1])}")
-            print(f"FINAL: {elem['final']}")
+            print(f"FINAL: ")
+            for key,value in elem['final'].items():
+                if key != "ram":
+                    print(f"{key}, {hex(value)}")
+                else:
+                    print("ram")
+                    for ramval in value:
+                        print(f"{hex(ramval[0])}, {hex(ramval[1])}")
             print(f"CYCLES: {elem['cycles']}")
             print(type(elem['initial']))
             proc = subprocess.Popen([main_program_dir+main_program_name, "1"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
@@ -66,6 +73,8 @@ for filename in files:
                 send_msg(proc, ramval[0])
                 send_msg(proc, ramval[1])
                 wait_msg(proc, "OK")
+            send_msg(proc, "STEP\n")
+            wait_msg(proc, "OK")
             send_msg(proc, "RREGISTERS")
             wait_msg(proc, "OK")
             for ramval in elem['initial']['ram']:

@@ -2,6 +2,8 @@
 
 uint8_t cpu_ram[2048] = {0};
 
+uint8_t cartridge_mem[49120] = {0};
+
 uint8_t read_ram(uint16_t addr){
     if((addr >= 0x0000 && addr < 0x2000)){
         return(cpu_ram[addr & 0x7ff]);
@@ -15,7 +17,7 @@ uint8_t read_ram(uint16_t addr){
         while(1);
     } else {
         // UNMAPPED
-        return(0);
+        return(cartridge_mem[addr-0x4020]);
         while(1);
     }
 }
@@ -33,6 +35,7 @@ void write_ram(uint16_t addr, uint8_t val){
         while(1);
     } else {
         // UNMAPPED
+        cartridge_mem[addr-0x4020] = val;
     }
 }
 

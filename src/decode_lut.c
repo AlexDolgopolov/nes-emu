@@ -814,3 +814,7 @@ Instruction opcode_lut[256] = {
     }
 };
 
+Instruction get_instruction(uint8_t idx){
+    return opcode_lut[idx];
+}
+

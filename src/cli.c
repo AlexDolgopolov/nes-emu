@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "6502_mem.h"
+#include "cpu.h"
 
 uint32_t process_cli(CpuStateTypedef* cpu){
   char strbuf[100] = {0};
@@ -57,6 +58,7 @@ uint32_t process_cli(CpuStateTypedef* cpu){
     fflush(stdout);
     return 1;
   } else if(strcmp(strbuf, "STEP") == 0){
+    cpu_tick(cpu);
     printf("OK\n");
     fflush(stdout);
     return 1;

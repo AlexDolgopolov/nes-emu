@@ -30,6 +30,6 @@ typedef struct{
 
 void cpu_powerup(CpuStateTypedef* cpu);
 void cpu_reset(CpuStateTypedef* cpu);
-
+void cpu_tick(CpuStateTypedef* cpu);
 
 #endif
