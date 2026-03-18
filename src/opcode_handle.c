@@ -180,13 +180,15 @@ uint8_t opcode_CLV(CpuStateTypedef* cpu, uint16_t mem_idx){
 
 uint8_t opcode_CMP(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Compare A
-    int8_t mem_val = read_ram(mem_idx);
-    int8_t accumulator = cpu->A;
-    printf("%x\n", accumulator);
-    printf("%x\n", mem_val);
+    uint8_t mem_val = read_ram(mem_idx);
+    uint8_t accumulator = cpu->A;
+    printf("accumulator %x\n", accumulator);
+    printf("mem_val %x\n", mem_val);
+    printf("mem_val %x\n", (accumulator - mem_val) & (1 << 7));
     cpu->P_bit.C = (accumulator >= mem_val);
+    printf("%x\n", cpu->P_bit.C);
     cpu->P_bit.Z = (accumulator == mem_val);
-    cpu->P_bit.N = (mem_val <= accumulator);
+    cpu->P_bit.N = ((accumulator - mem_val) & (1 << 7)) != 0;
     return 0;
 }
 

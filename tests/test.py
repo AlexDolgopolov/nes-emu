@@ -37,15 +37,11 @@ def send_msg(proc, msg):
     proc.stdin.flush()
 
 #temp variable TODO remove
-test_num = 0
 
 for filename in files:
     with open(test_dir+filename, "r") as file:
         test_dict = json.loads(file.read())
         for elem in test_dict:
-            if test_num != 0:
-                test_num = test_num - 1
-                continue
             print(f"NAME: {elem['name']}")
             print(f"INITIAL:")
             for key,value in elem['initial'].items():
@@ -124,5 +120,5 @@ for filename in files:
             wait_msg(proc, "OK")
             proc.terminate()
             proc.wait()
-            exit()
+#            exit()
 
