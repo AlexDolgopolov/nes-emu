@@ -2,6 +2,8 @@
 
 uint8_t cpu_ram[2048] = {0};
 
+uint8_t ppu_ram[2048] = {0};
+
 uint8_t cartridge_mem[49120] = {0};
 
 uint8_t read_ram(uint16_t addr){
@@ -9,6 +11,7 @@ uint8_t read_ram(uint16_t addr){
         return(cpu_ram[addr & 0x7ff]);
     } else if((addr >= 0x2000 && addr < 0x4000)){
         // NES PPU REGISTERS
+        return(ppu_ram[addr & 0x7]);
         // addr & 0x7
         while(1);
     } else if((addr >= 0x4000 && addr < 0x4020)){
@@ -28,7 +31,7 @@ void write_ram(uint16_t addr, uint8_t val){
     } else if((addr >= 0x2000 && addr < 0x4000)){
         // NES PPU REGISTERS
         // addr & 0x7
-        while(1);
+        ppu_ram[addr & 0x7] = val;
     } else if((addr >= 0x4000 && addr < 0x4020)){
         // NES APU AND IO REGISTERS
         // addr & 0x1f

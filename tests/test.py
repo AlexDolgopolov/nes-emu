@@ -4,6 +4,7 @@ import subprocess
 import signal
 import sys
 import time
+import re
 
 test_dir = "./target-test/"
 files = os.listdir(test_dir)
@@ -24,8 +25,8 @@ signal.signal(signal.SIGINT, signal_handler)
 def wait_msg(proc, msg):
     while True:
         data = proc.stdout.readline().strip()
-        if data != "": 
-            print(data)
+        if data != "":
+            yield data
         if data == msg:
             break
 
@@ -35,11 +36,16 @@ def send_msg(proc, msg):
     proc.stdin.write(f"{msg}\n")
     proc.stdin.flush()
 
+#temp variable TODO remove
+test_num = 0
 
 for filename in files:
     with open(test_dir+filename, "r") as file:
         test_dict = json.loads(file.read())
         for elem in test_dict:
+            if test_num != 0:
+                test_num = test_num - 1
+                continue
             print(f"NAME: {elem['name']}")
             print(f"INITIAL:")
             for key,value in elem['initial'].items():
@@ -67,20 +73,53 @@ for filename in files:
             send_msg(proc, elem['initial']['x'])
             send_msg(proc, elem['initial']['y'])
             send_msg(proc, elem['initial']['p'])
-            wait_msg(proc, "OK")
+            for line in wait_msg(proc, "OK"):
+                print(line)
             for ramval in elem['initial']['ram']:
                 send_msg(proc, "WMEMORY\n")
                 send_msg(proc, ramval[0])
                 send_msg(proc, ramval[1])
-                wait_msg(proc, "OK")
+                for line in wait_msg(proc, "OK"):
+                    print(line)
             send_msg(proc, "STEP\n")
-            wait_msg(proc, "OK")
+            for line in wait_msg(proc, "OK"):
+                print(line)
             send_msg(proc, "RREGISTERS")
-            wait_msg(proc, "OK")
-            for ramval in elem['initial']['ram']:
+            registers_list = list() # pc, s, a, y, p
+            for line in wait_msg(proc, "OK"):
+                print(line)
+                spl = line.split('=')
+                if(len(spl) == 2):
+                    registers_list.append(int(spl[1].strip(), base = 16))
+            ramval_list = list()
+            for ramval in elem['final']['ram']:
                 send_msg(proc, "RMEMORY\n")
                 send_msg(proc, ramval[0])
-                wait_msg(proc, "OK")
+                for line in wait_msg(proc, "OK"):
+                    print(line)
+                    spl = line.split('=')
+                    if(len(spl) == 2):
+                        ramval_list.append(int(spl[1].strip(), base = 16))
+            print("start compare")
+            compare_result = True
+            r_idx = 0
+            ram_idx = 0
+            for key,value in elem['final'].items():
+                if key != "ram":
+                    if value != registers_list[r_idx]:
+                        compare_result = False
+                        print(f"{key}: {hex(value)}, {hex(registers_list[r_idx])}")
+                        break
+                    else:
+                        r_idx = r_idx + 1
+                else:
+                    for ramval in value:
+                        if ramval[1] != ramval_list[ram_idx]:
+                            compare_result = False
+                            break
+                        else:
+                            ram_idx = ram_idx + 1
+            print(f"compare result = {compare_result}")
             send_msg(proc, "END")
             wait_msg(proc, "OK")
             proc.terminate()

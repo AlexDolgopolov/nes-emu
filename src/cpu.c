@@ -32,6 +32,7 @@ void cpu_tick(CpuStateTypedef* cpu){
     printf("cmd = %x\n", cmd);
     Instruction instr = get_instruction(cmd);
     RetAddress  i_addr = instr.addrmode(cpu);
+    cpu->PC += i_addr.pc_inc;
     //execute
     instr.operate(cpu, i_addr.address);
     printf("end tick\n");

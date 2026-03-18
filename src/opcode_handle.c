@@ -1,4 +1,6 @@
 #include "opcode_handle.h"
+#include <stdio.h>
+
 
 uint8_t opcode_ILL(CpuStateTypedef* cpu, uint16_t mem_idx){
  // Illegal Insruction (This is not official opcode, but may be helpfull for debug)
@@ -178,11 +180,13 @@ uint8_t opcode_CLV(CpuStateTypedef* cpu, uint16_t mem_idx){
 
 uint8_t opcode_CMP(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Compare A
-    uint8_t mem_val = read_ram(mem_idx);
-    uint8_t accumulator = cpu->A;
+    int8_t mem_val = read_ram(mem_idx);
+    int8_t accumulator = cpu->A;
+    printf("%x\n", accumulator);
+    printf("%x\n", mem_val);
     cpu->P_bit.C = (accumulator >= mem_val);
     cpu->P_bit.Z = (accumulator == mem_val);
-    cpu->P_bit.N = (accumulator < mem_val);
+    cpu->P_bit.N = (mem_val <= accumulator);
     return 0;
 }
 

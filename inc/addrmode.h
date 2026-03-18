@@ -9,6 +9,7 @@
 typedef struct {
     uint16_t address;
     bool page_crossing;
+    uint8_t pc_inc;
 } RetAddress;
 
 
