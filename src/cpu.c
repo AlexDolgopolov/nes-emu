@@ -26,14 +26,24 @@ void cpu_reset(CpuStateTypedef* cpu){
 
 void cpu_tick(CpuStateTypedef* cpu){
     printf("start tick\n");
+    fflush(stdout);
     uint16_t address = cpu->PC;
     printf("address = %x\n", address);
+    fflush(stdout);
     uint8_t cmd = read_ram(address);
     printf("cmd = %x\n", cmd);
+    fflush(stdout);
     Instruction instr = get_instruction(cmd);
+    printf("fetch instruction\n");
+    fflush(stdout);
     RetAddress  i_addr = instr.addrmode(cpu);
+    printf("fetch address\n");
+    fflush(stdout);
     cpu->PC += i_addr.pc_inc;
     //execute
     instr.operate(cpu, i_addr.address);
+    printf("finish execute\n");
+    fflush(stdout);
     printf("end tick\n");
+    fflush(stdout);
 }

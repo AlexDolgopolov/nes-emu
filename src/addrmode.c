@@ -1,4 +1,5 @@
 #include "addrmode.h"
+#include <stdio.h>
 
 RetAddress addrmode_IMP(CpuStateTypedef* cpu){
     RetAddress retval = {.address = 0x0, .page_crossing = false};

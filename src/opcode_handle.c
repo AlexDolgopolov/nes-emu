@@ -4,6 +4,8 @@
 
 uint8_t opcode_ILL(CpuStateTypedef* cpu, uint16_t mem_idx){
  // Illegal Insruction (This is not official opcode, but may be helpfull for debug)
+ //    printf("illegal_istruction\n");
+ //   fflush(stdout);
     while(1);
     return 0;
 }

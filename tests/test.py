@@ -12,7 +12,6 @@ main_program_dir = "../build/Debug/"
 main_program_name = "my_app.exe"
 proc = None
 
-
 def signal_handler(sig, frame):
     print('\nВы нажали Ctrl+C! Завершаю программу...')
     if proc != None:
@@ -30,37 +29,55 @@ def wait_msg(proc, msg):
         if data == msg:
             break
 
+cpu_debug = False
 
 def send_msg(proc, msg):
-#    print(f"send: {msg}\n")
+    if cpu_debug:
+        print(f"send: {msg}\n")
     proc.stdin.write(f"{msg}\n")
     proc.stdin.flush()
 
 #temp variable TODO remove
 
+test_dec = 798
+all_tests = False
+
+
 for filename in files:
     with open(test_dir+filename, "r") as file:
         test_dict = json.loads(file.read())
         for elem in test_dict:
+            if all_tests == True:
+                if test_dec != 0:
+                    test_dec = test_dec - 1
+                    continue
             print(f"NAME: {elem['name']}")
-            print(f"INITIAL:")
+            if cpu_debug:
+                print(f"INITIAL:")
             for key,value in elem['initial'].items():
                 if key != "ram":
-                    print(f"{key}, {hex(value)}")
+                    if cpu_debug:
+                        print(f"{key}, {hex(value)}")
                 else:
-                    print("ram")
+                    if cpu_debug:
+                        print("ram")
                     for ramval in value:
-                        print(f"{hex(ramval[0])}, {hex(ramval[1])}")
-            print(f"FINAL: ")
+                        if cpu_debug:
+                            print(f"{hex(ramval[0])}, {hex(ramval[1])}")
+            if cpu_debug:
+                print(f"FINAL: ")
             for key,value in elem['final'].items():
                 if key != "ram":
-                    print(f"{key}, {hex(value)}")
+                    if cpu_debug:
+                        print(f"{key}, {hex(value)}")
                 else:
-                    print("ram")
+                    if cpu_debug:
+                        print("ram")
                     for ramval in value:
-                        print(f"{hex(ramval[0])}, {hex(ramval[1])}")
-            print(f"CYCLES: {elem['cycles']}")
-            print(type(elem['initial']))
+                        if cpu_debug:
+                            print(f"{hex(ramval[0])}, {hex(ramval[1])}")
+            if cpu_debug:
+                print(f"CYCLES: {elem['cycles']}")
             proc = subprocess.Popen([main_program_dir+main_program_name, "1"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             send_msg(proc, "WREGISTERS\n")
             send_msg(proc, elem['initial']['pc'])
@@ -70,20 +87,24 @@ for filename in files:
             send_msg(proc, elem['initial']['y'])
             send_msg(proc, elem['initial']['p'])
             for line in wait_msg(proc, "OK"):
-                print(line)
+                if cpu_debug:
+                    print(line)
             for ramval in elem['initial']['ram']:
                 send_msg(proc, "WMEMORY\n")
                 send_msg(proc, ramval[0])
                 send_msg(proc, ramval[1])
                 for line in wait_msg(proc, "OK"):
-                    print(line)
+                    if cpu_debug:
+                        print(line)
             send_msg(proc, "STEP\n")
             for line in wait_msg(proc, "OK"):
-                print(line)
+                if cpu_debug:
+                    print(line)
             send_msg(proc, "RREGISTERS")
             registers_list = list() # pc, s, a, y, p
             for line in wait_msg(proc, "OK"):
-                print(line)
+                if cpu_debug:
+                    print(line)
                 spl = line.split('=')
                 if(len(spl) == 2):
                     registers_list.append(int(spl[1].strip(), base = 16))
@@ -92,11 +113,13 @@ for filename in files:
                 send_msg(proc, "RMEMORY\n")
                 send_msg(proc, ramval[0])
                 for line in wait_msg(proc, "OK"):
-                    print(line)
+                    if cpu_debug:
+                        print(line)
                     spl = line.split('=')
                     if(len(spl) == 2):
                         ramval_list.append(int(spl[1].strip(), base = 16))
-            print("start compare")
+            if cpu_debug:
+                print("start compare")
             compare_result = True
             r_idx = 0
             ram_idx = 0
@@ -104,7 +127,8 @@ for filename in files:
                 if key != "ram":
                     if value != registers_list[r_idx]:
                         compare_result = False
-                        print(f"{key}: {hex(value)}, {hex(registers_list[r_idx])}")
+                        if cpu_debug:
+                            print(f"{key}: {hex(value)}, {hex(registers_list[r_idx])}")
                         break
                     else:
                         r_idx = r_idx + 1
@@ -120,5 +144,8 @@ for filename in files:
             wait_msg(proc, "OK")
             proc.terminate()
             proc.wait()
-#            exit()
+            if compare_result == False:
+                exit()
+            if all_tests == True:
+                exit()
 
