@@ -6,7 +6,7 @@ import sys
 import time
 import re
 
-test_dir = "./target-test/"
+test_dir = "./target/6502/v1/"
 files = os.listdir(test_dir)
 main_program_dir = "../build/Debug/"
 main_program_name = "my_app.exe"
@@ -29,7 +29,9 @@ def wait_msg(proc, msg):
         if data == msg:
             break
 
-cpu_debug = False
+cpu_debug = True
+test_dec = 798
+all_tests = True
 
 def send_msg(proc, msg):
     if cpu_debug:
@@ -39,8 +41,6 @@ def send_msg(proc, msg):
 
 #temp variable TODO remove
 
-test_dec = 798
-all_tests = False
 
 
 for filename in files:
@@ -135,6 +135,8 @@ for filename in files:
                 else:
                     for ramval in value:
                         if ramval[1] != ramval_list[ram_idx]:
+                            if cpu_debug:
+                                print(f"{hex(ramval[0])}: {hex(ramval[1])}, {hex(ramval_list[ram_idx])}")
                             compare_result = False
                             break
                         else:

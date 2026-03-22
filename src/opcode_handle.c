@@ -132,7 +132,7 @@ uint8_t opcode_BRK(CpuStateTypedef* cpu, uint16_t mem_idx){
     push_stack(&(cpu->S), pc & 0xff);
     push_stack(&(cpu->S), cpu->P_val | (1 << 4) | (1 << 5));
     cpu->P_bit.I = 1;
-    cpu->PC = (read_ram(0xfffd) << 8) | read_ram(0xfffc);
+    cpu->PC = (read_ram(0xffff) << 8) | read_ram(0xfffe);
     return 0;
 }
 
