@@ -127,7 +127,7 @@ uint8_t opcode_BPL(CpuStateTypedef* cpu, uint16_t mem_idx){
 
 uint8_t opcode_BRK(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Break (software IRQ)
-    uint16_t pc = cpu->PC+2;
+    uint16_t pc = cpu->PC+1; // we already increment pc by 1
     push_stack(&(cpu->S), (pc & 0xff00) >> 8);
     push_stack(&(cpu->S), pc & 0xff);
     push_stack(&(cpu->S), cpu->P_val | (1 << 4) | (1 << 5));

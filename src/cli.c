@@ -21,6 +21,8 @@ uint32_t process_cli(CpuStateTypedef* cpu){
     cpu->X      = x;
     cpu->Y      = y;
     cpu->P_val  = p;
+    printf("WREGISTERS\n");
+    fflush(stdout);
     printf("OK\n");
     fflush(stdout);
     return 1;
@@ -45,6 +47,8 @@ uint32_t process_cli(CpuStateTypedef* cpu){
     scanf("%d", &addr);
     scanf("%d", &val);
     write_ram((uint16_t)addr, (uint8_t)val);
+    printf("WMEMORY\n");
+    fflush(stdout);
     printf("OK\n");
     fflush(stdout);
     return 1;
@@ -59,6 +63,8 @@ uint32_t process_cli(CpuStateTypedef* cpu){
     return 1;
   } else if(strcmp(strbuf, "STEP") == 0){
     cpu_tick(cpu);
+    printf("STEP\n");
+    fflush(stdout);
     printf("OK\n");
     fflush(stdout);
     return 1;
