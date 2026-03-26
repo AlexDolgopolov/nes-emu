@@ -16,7 +16,8 @@ RetAddress addrmode_IMM(CpuStateTypedef* cpu){
 #define addrmode_REL addrmode_IMM
 
 RetAddress addrmode_ABS(CpuStateTypedef* cpu){
-    RetAddress retval = {.address = ((cpu->PC+2) << 8) | (cpu->PC+1), .page_crossing = false};
+    uint16_t address_base = cpu->PC+1;
+    RetAddress retval = {.address = address_base, .page_crossing = false};
     retval.pc_inc = 3;
     return retval;
 } // Absolute

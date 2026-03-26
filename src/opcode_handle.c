@@ -58,9 +58,9 @@ uint8_t opcode_ASL_A(CpuStateTypedef* cpu, uint16_t mem_idx){
 uint8_t opcode_BCC(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Branch if Carry Clear
     if(cpu->P_bit.C == 0){
-        uint8_t mem_val = read_ram(mem_idx);
+        char mem_val = read_ram(mem_idx);
         bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
-        cpu->PC = cpu->PC + mem_val + 2;
+        cpu->PC = cpu->PC + mem_val;
         return page_cross_branch ? 2 : 1;
     } else return 0;
 }
@@ -68,9 +68,9 @@ uint8_t opcode_BCC(CpuStateTypedef* cpu, uint16_t mem_idx){
 uint8_t opcode_BCS(CpuStateTypedef* cpu, uint16_t mem_idx){
 // Branch if Carry Set
     if(cpu->P_bit.C == 1){
-        uint8_t mem_val = read_ram(mem_idx);
+        char mem_val = read_ram(mem_idx);
         bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
-        cpu->PC = cpu->PC + mem_val + 2;
+        cpu->PC = cpu->PC + mem_val;
         return page_cross_branch ? 2 : 1;
     } else return 0;
 }
@@ -78,9 +78,9 @@ uint8_t opcode_BCS(CpuStateTypedef* cpu, uint16_t mem_idx){
 uint8_t opcode_BEQ(CpuStateTypedef* cpu, uint16_t mem_idx){
 // Branch if Equal
     if(cpu->P_bit.Z == 1){
-        uint8_t mem_val = read_ram(mem_idx);
+        char mem_val = read_ram(mem_idx);
         bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
-        cpu->PC = cpu->PC + mem_val + 2;
+        cpu->PC = cpu->PC + mem_val;
         return page_cross_branch ? 2 : 1;
     } else return 0;
 }
@@ -98,9 +98,9 @@ uint8_t opcode_BIT(CpuStateTypedef* cpu, uint16_t mem_idx){
 uint8_t opcode_BMI(CpuStateTypedef* cpu, uint16_t mem_idx){
 // Branch if Minus
     if(cpu->P_bit.N == 1){
-        uint8_t mem_val = read_ram(mem_idx);
+        char mem_val = read_ram(mem_idx);
         bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
-        cpu->PC = cpu->PC + mem_val + 2;
+        cpu->PC = cpu->PC + mem_val;
         return page_cross_branch ? 2 : 1;
     } else return 0;
 }
@@ -108,9 +108,9 @@ uint8_t opcode_BMI(CpuStateTypedef* cpu, uint16_t mem_idx){
 uint8_t opcode_BNE(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Branch if Not Equal
     if(cpu->P_bit.Z == 0){
-        uint8_t mem_val = read_ram(mem_idx);
+        char mem_val = read_ram(mem_idx);
         bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
-        cpu->PC = cpu->PC + mem_val + 2;
+        cpu->PC = cpu->PC + mem_val;
         return page_cross_branch ? 2 : 1;
     } else return 0;
 }
@@ -118,9 +118,9 @@ uint8_t opcode_BNE(CpuStateTypedef* cpu, uint16_t mem_idx){
 uint8_t opcode_BPL(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Branch if Plus
     if(cpu->P_bit.N == 0){
-        uint8_t mem_val = read_ram(mem_idx);
-        bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
-        cpu->PC = cpu->PC + mem_val + 2;
+        char mem_val = read_ram(mem_idx);
+        bool page_cross_branch = ((cpu->PC) & 0xff00) != ((cpu->PC+mem_val) & 0xff00);
+        cpu->PC = cpu->PC + mem_val;
         return page_cross_branch ? 2 : 1;
     } else return 0;
 }
@@ -286,14 +286,14 @@ uint8_t opcode_INY(CpuStateTypedef* cpu, uint16_t mem_idx){
 
 uint8_t opcode_JMP(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Jump
-    cpu->PC = read_ram(mem_idx);
+    cpu->PC = read_ram(mem_idx) | (read_ram(mem_idx+1) << 8);
     return 0;
 }
 uint8_t opcode_JSR(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Jump to Subroutine
-    push_stack(&(cpu->S), (cpu->PC + 2) >> 8);
-    push_stack(&(cpu->S), (cpu->PC + 2));
-    cpu->PC = read_ram(mem_idx);
+    push_stack(&(cpu->S), (uint8_t)((cpu->PC) >> 8));
+    push_stack(&(cpu->S), (uint8_t)(cpu->PC));
+    cpu->PC = read_ram(mem_idx) | (read_ram(mem_idx+1) << 8);
     return 0;
 }
 

@@ -22,7 +22,10 @@ class TestHandler():
 		self.name = name
 	def _send_msg(self, proc, msg):
 		if self.debug:
-			print(f"send: {msg}\n", end = "")
+			if type(msg) is int:
+				print(f"send: {hex(msg)}\n", end = "")
+			else:
+				print(f"send: {msg}\n", end = "")
 		proc.stdin.write(f"{msg}\n")
 		proc.stdin.flush()
 	def _wait_msg(self, proc, msg):
@@ -35,8 +38,8 @@ class TestHandler():
 			if data == msg:
 				break
 	def start(self):
+		print(f"TEST = {self.name}")
 		if self.debug:
-			print(f"TEST = {self.name}")
 			print(f"INITIAL:")
 			print(self.initial_data)
 			print(f"FINAL: ")
@@ -96,8 +99,7 @@ class TestHandler():
 					break
 				else:
 					ram_idx = ram_idx + 1
-		if self.debug:
-			print(f"compare result = {compare_result}")
+		print(f"compare result = {compare_result}")
 		self._send_msg(self.proc, "END")
 		self._wait_msg(self.proc, "OK")
 		self.proc.terminate()
