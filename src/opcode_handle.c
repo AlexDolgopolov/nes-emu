@@ -139,9 +139,9 @@ uint8_t opcode_BRK(CpuStateTypedef* cpu, uint16_t mem_idx){
 uint8_t opcode_BVC(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Branch if Overflow Clear
     if(cpu->P_bit.V == 0){
-        uint8_t mem_val = read_ram(mem_idx);
+        char mem_val = read_ram(mem_idx);
         bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
-        cpu->PC = cpu->PC + mem_val + 2;
+        cpu->PC = cpu->PC + mem_val;
         return page_cross_branch ? 2 : 1;
     } else return 0;
 }
@@ -149,9 +149,9 @@ uint8_t opcode_BVC(CpuStateTypedef* cpu, uint16_t mem_idx){
 uint8_t opcode_BVS(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Branch if Overflow Set
     if(cpu->P_bit.V == 1){
-        uint8_t mem_val = read_ram(mem_idx);
+        char mem_val = read_ram(mem_idx);
         bool page_cross_branch = ((cpu->PC+2) & 0xff00) != ((cpu->PC+2+mem_val) & 0xff00);
-        cpu->PC = cpu->PC + mem_val + 2;
+        cpu->PC = cpu->PC + mem_val;
         return page_cross_branch ? 2 : 1;
     } else return 0;
 }
@@ -286,7 +286,8 @@ uint8_t opcode_INY(CpuStateTypedef* cpu, uint16_t mem_idx){
 
 uint8_t opcode_JMP(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Jump
-    cpu->PC = read_ram(mem_idx) | (read_ram(mem_idx+1) << 8);
+    if((mem_idx & 0xff) != 0xff) cpu->PC = read_ram(mem_idx) | (read_ram(mem_idx+1) << 8);
+    else cpu->PC = read_ram(mem_idx) | (read_ram(mem_idx & 0xff00) << 8); // 6502 bug
     return 0;
 }
 uint8_t opcode_JSR(CpuStateTypedef* cpu, uint16_t mem_idx){
