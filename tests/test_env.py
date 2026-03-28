@@ -1,6 +1,8 @@
 import os
 import json
 import subprocess
+import threading
+from multiprocessing import Process
 
 cpu_path = "../build/Debug/my_app.exe"
 
@@ -38,8 +40,8 @@ class TestHandler():
 			if data == msg:
 				break
 	def start(self):
-		print(f"TEST = {self.name}")
 		if self.debug:
+			print(f"TEST = {self.name}")
 			print(f"INITIAL:")
 			print(self.initial_data)
 			print(f"FINAL: ")
@@ -99,7 +101,8 @@ class TestHandler():
 					break
 				else:
 					ram_idx = ram_idx + 1
-		print(f"compare result = {compare_result}")
+		if self.debug:
+			print(f"compare result = {compare_result}")
 		self._send_msg(self.proc, "END")
 		self._wait_msg(self.proc, "OK")
 		self.proc.terminate()
@@ -109,6 +112,7 @@ class TestHandler():
 
 def create_and_execute(name, initial_data, final_data, debug, pid):
 	test = TestHandler(name, initial_data, final_data, debug, pid)
+	print(f"{pid} : result = {test.start()}")
 	return test.start()
 
 class FileHandler():
@@ -121,20 +125,58 @@ class FileHandler():
 		self._filename = container.filename
 		self._test_dir = test_dir
 		self.files = os.listdir(test_dir)
-	def start(self):
+		self.threads_list = []
+		self.threads_clear = 0
+	def wait_thread(self):
+		while(True):
+			for thread in self.threads_list:
+				if not thread.is_alive():
+					self.threads_list.remove(thread)
+					self.threads_clear = self.threads_clear + 1
+					print(self.threads_clear)
+			if len(self.threads_list) < self._threads:
+				break
+	def run_test_in_file(self):
 		for filename in self.files:
-			if not self._all_files:
-				if filename != self._filename:
-					continue
+			if filename != self._filename:
+				continue
 			with open(self._test_dir+filename, "r") as file:
 				test_json_dict = json.loads(file.read())
-				threads_list = []
 				for test in test_json_dict:
-					if not self._all_tests:
-						if test['name'] != self._test_name:
-							continue
-					create_and_execute(test['name'], test['initial'], test['final'], self._cpu_debug, 0)
+					if test['name'] != self._test_name:
+						continue
+					create_and_execute(test['name'], test['initial'], test['final'], self._cpu_debug, test['name'])
+		pass
+	def run_all_test_in_file(self):
+		for filename in self.files:
+			if filename != self._filename:
+				continue
+			with open(self._test_dir+filename, "r") as file:
+				test_json_dict = json.loads(file.read())
+				for test in test_json_dict:
+					if len(self.threads_list) >= self._threads:
+						self.wait_thread()
+					thread = threading.Thread(target=create_and_execute, args=(test['name'], test['initial'], test['final'], self._cpu_debug, test['name']))
+					self.threads_list.append(thread)
+					thread.start()
+			self.wait_thread()
+		pass
+	def run_tests(self):
+		for filename in self.files:
+			with open(self._test_dir+filename, "r") as file:
+				test_json_dict = json.loads(file.read())
+				for test in test_json_dict:
+					if len(self.threads_list) >= self._threads:
+						self.wait_thread()
+					thread = threading.Thread(target=create_and_execute, args=(test['name'], test['initial'], test['final'], self._cpu_debug, test['name']))
+					self.threads_list.append(thread)
+					thread.start()
+			self.wait_thread()
+	def start(self):
+		if self._all_files:
+			self.run_tests()
+		if (not self._all_files) and self._all_tests:
+			self.run_all_test_in_file()
+		if (not self._all_files) and (not self._all_tests):
+			self.run_test_in_file()
 		exit()
-
-
-
