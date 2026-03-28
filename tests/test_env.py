@@ -112,8 +112,11 @@ class TestHandler():
 
 def create_and_execute(name, initial_data, final_data, debug, pid):
 	test = TestHandler(name, initial_data, final_data, debug, pid)
-	print(f"{pid} : result = {test.start()}")
-	return test.start()
+	result = test.start()
+	print(f"{pid} : result = {result}")
+	if result == False:
+		print("WARNING!!\n.\n.\n.")
+	return result
 
 class FileHandler():
 	def __init__(self, test_dir, container):
@@ -132,8 +135,6 @@ class FileHandler():
 			for thread in self.threads_list:
 				if not thread.is_alive():
 					self.threads_list.remove(thread)
-					self.threads_clear = self.threads_clear + 1
-					print(self.threads_clear)
 			if len(self.threads_list) < self._threads:
 				break
 	def run_test_in_file(self):
