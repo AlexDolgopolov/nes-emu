@@ -7,13 +7,15 @@ from multiprocessing import Process
 cpu_path = "../build/Debug/my_app.exe"
 
 class InfoContainer():
-    def __init__(self, threads, cpu_debug, all_tests, test_name, all_files, filename):
+    def __init__(self, threads, cpu_debug, all_tests, filter_file, numtest, test_name, all_files, filename):
         self.threads = threads
         self.cpu_debug = cpu_debug
         self.all_tests = all_tests
         self.test_name = test_name
         self.all_files = all_files
         self.filename = filename
+        self.numtest = numtest
+        self.filter_file = filter_file
 
 class TestHandler():
 	def __init__(self, name, initial_data, final_data, debug, pid):
@@ -126,6 +128,8 @@ class FileHandler():
 		self._test_name = container.test_name
 		self._all_files = container.all_files
 		self._filename = container.filename
+		self._numtest = container.numtest
+		self._filter_file = container.filter_file
 		self._test_dir = test_dir
 		self.files = os.listdir(test_dir)
 		self.threads_list = []
@@ -154,7 +158,13 @@ class FileHandler():
 				continue
 			with open(self._test_dir+filename, "r") as file:
 				test_json_dict = json.loads(file.read())
+				numtest_ctr = 0
 				for test in test_json_dict:
+					if self._numtest != 0:
+						if numtest_ctr >= self._numtest:
+							self.wait_thread()
+							return
+						numtest_ctr = numtest_ctr+1
 					if len(self.threads_list) >= self._threads:
 						self.wait_thread()
 					thread = threading.Thread(target=create_and_execute, args=(test['name'], test['initial'], test['final'], self._cpu_debug, test['name']))
@@ -163,10 +173,29 @@ class FileHandler():
 			self.wait_thread()
 		pass
 	def run_tests(self):
+		file_filter = False
+		file_filter_list = []
+		if self._filter_file != "":
+			file_filter = True
+			with open(self._filter_file, "r") as file:
+				for readline in file:
+					file_filter_list.append(readline.strip('\n'))
 		for filename in self.files:
+			if file_filter:
+				try:
+					file_filter_list.index(filename)
+				except ValueError:
+					print(f"not find {filename}")
+					continue
 			with open(self._test_dir+filename, "r") as file:
 				test_json_dict = json.loads(file.read())
+				numtest_ctr = 0
 				for test in test_json_dict:
+					if self._numtest != 0:
+						if numtest_ctr >= self._numtest:
+							self.wait_thread()
+							break
+						numtest_ctr = numtest_ctr+1
 					if len(self.threads_list) >= self._threads:
 						self.wait_thread()
 					thread = threading.Thread(target=create_and_execute, args=(test['name'], test['initial'], test['final'], self._cpu_debug, test['name']))
