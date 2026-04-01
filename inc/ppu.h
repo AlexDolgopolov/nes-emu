@@ -20,6 +20,8 @@ typedef enum{
 } PPURegisterType;
 
 typedef struct{
+	uint16_t scanline;
+	uint16_t cycle;
 	uint16_t x_pos;
 	uint16_t y_pos;
 	uint8_t w;
@@ -31,6 +33,8 @@ typedef struct{
 	uint8_t ppudata_buffer;
 } PPUState;
 
+void ppu_powerup();
+void ppu_tick();
 uint8_t read_ppu_reg(PPURegisterType reg);
 void write_ppu_reg(PPURegisterType reg, uint8_t data);
 uint8_t ppu_read(uint16_t address);

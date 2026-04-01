@@ -8,6 +8,35 @@ PPUScrollingType scrolling;
 uint8_t palette[32];
 uint8_t oam_memory[256];
 PPUState ppu;
+bool ppu_vblank_nmi;
+
+void ppu_powerup(){
+	ppu_vblank_nmi = 0;
+	ppu.scanline = 0
+	ppu.cycle = 0
+	ppu.x_pos = 0
+	ppu.y_pos = 0
+	ppu.w = 0
+	ppu.ppuctrl = 0;
+	ppu.ppumask = 0;
+	ppu.ppu_status = 0; 
+	ppu.oam_addr = 0;
+	ppu.current_vram_addr = 0;
+	ppu.ppudata_buffer = 0;
+}
+
+bool get_ppu_nmi() return ppu_vblank_nmi;
+
+void ppu_tick(){
+	ppu_vblank_nmi = ((ppu.ppuctrl & ppu.ppu_status) & (1 << 7)) != 0;
+	if((++ppu.cycle) > 340){
+		ppu.cycle = 0;
+		ppu.scanline++;
+	}
+	if((ppu.scanline == 241) && (ppu.cycle == 1)) ppu.ppu_status |= 1 << 7;
+	if((ppu.scanline == 261) && (ppu.cycle == 1)) ppu.ppu_status &= ~(0b111 << 5);
+	if(ppu.scanline == 262)	ppu.scanline = 0;
+}
 
 uint8_t read_ppu_reg(PPURegisterType reg){
 	switch(reg){
