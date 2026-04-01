@@ -1,8 +1,12 @@
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h> 
 #include <stdio.h>
 #include <string.h>
 #include "cpu.h"
 #include "cli.h"
 CpuStateTypedef cpu;
+static SDL_Window *window = NULL;
+static SDL_Renderer *renderer = NULL;
 
 int main(int argc, char *argv[]){
   if(argc != 2){
@@ -11,7 +15,7 @@ int main(int argc, char *argv[]){
     return 1;
   } else {
     if(strcmp(argv[1], "0") == 0){
-      // WORK MODE
+    // WORK MODE
       printf("%s, WORK MODE NOT IMPLEMENTED\n", argv[1]);
       fflush(stdout);
       cpu_powerup(&cpu);

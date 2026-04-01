@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdint.h>
 #include "ppu.h"
 
 uint8_t pattern_table[0x2000];
@@ -5,6 +7,128 @@ uint8_t nametable[0x1000];
 PPUScrollingType scrolling;
 uint8_t palette[32];
 uint8_t oam_memory[256];
+PPUState ppu;
+
+uint8_t read_ppu_reg(PPURegisterType reg){
+	switch(reg){
+		case PPUCTRL:{
+			//ERROR
+			printf("Warning: PPUCTRL read attempt\n");
+			fflush(stdout);
+			return 0x0;
+		}
+		case PPUMASK:{
+			//ERROR
+			printf("Warning: PPUMASK read attempt\n");
+			fflush(stdout);
+			return 0x0;
+		}
+		case PPUSTATUS:{
+			uint8_t retval = ppu.ppu_status;
+			ppu.w = 0;
+			ppu.ppu_status &= ~(1 << 7);
+			return retval;
+		}
+		case OAMADDR:{
+			//ERROR
+			printf("Warning: OAMADDR read attempt\n");
+			fflush(stdout);
+			return 0x0;
+		}
+		case OAMDATA:{
+			uint8_t retval = oam_memory[ppu.oam_addr];
+			return retval;
+		}
+		case PPUSCROLL:{
+			//ERROR
+			printf("Warning: PPUSCROLL read attempt\n");
+			fflush(stdout);
+			return 0x0;
+		}
+		case PPUADDR:{
+			//ERROR
+			printf("Warning: PPUADDR read attempt\n");
+			fflush(stdout);
+			return 0x0;
+		}
+		case PPUDATA:{
+			uint8_t retval;
+			if(ppu.current_vram_addr >= 0x3f00 && ppu.current_vram_addr <= 0x3fff){
+				// palette
+				retval = ppu_read(ppu.current_vram_addr);
+				ppu.ppudata_buffer = ppu_read(ppu.current_vram_addr & ~(1 << 12)); // palette mirroring
+			} else {
+				// other mem
+				retval = ppu.ppudata_buffer;
+				ppu.ppudata_buffer = ppu_read(ppu.current_vram_addr);
+			}
+			ppu.current_vram_addr += ((ppu.ppuctrl & (1 << 2)) != 0) ? 32 : 1;
+			return retval;
+		}
+		default:{
+			printf("Error: Undefined register");
+			fflush(stdout);
+			while(1);
+		}
+	}
+	return 0x0;
+}
+void write_ppu_reg(PPURegisterType reg, uint8_t data){
+	switch(reg){
+		case PPUCTRL:{
+			ppu.ppuctrl = data;
+			return;
+		}
+		case PPUMASK:{
+			ppu.ppumask = data;
+			return;
+		}
+		case PPUSTATUS:{
+			printf("Warning: PPUSTATUS write attempt\n");
+			fflush(stdout);
+			return;
+		}
+		case OAMADDR:{
+			ppu.oam_addr = data;
+			return;
+		}
+		case OAMDATA:{
+			oam_memory[ppu.oam_addr] = data;
+			ppu.oam_addr += 1;
+			return;
+		}
+		case PPUSCROLL:{
+			if(ppu.w == 0){
+				ppu.x_pos = data;
+				ppu.w = 1;
+			} else {
+				ppu.y_pos = data;
+				ppu.w = 0;
+			}
+			return;
+		}
+		case PPUADDR:{
+			if(ppu.w == 0){
+				ppu.current_vram_addr = (ppu.current_vram_addr & 0x00ff) | (data << 8);
+				ppu.w = 1;
+			} else {
+				ppu.current_vram_addr = (ppu.current_vram_addr & 0xff00) | (data);
+				ppu.w = 0;
+			}
+		}
+		case PPUDATA:{
+			ppu_write(ppu.current_vram_addr, data);
+			ppu.current_vram_addr += ((ppu.ppuctrl & (1 << 2)) != 0) ? 32 : 1;
+			return;
+		}
+		default:{
+			printf("Error: Undefined register");
+			fflush(stdout);
+			while(1);
+		}
+	}
+	return;
+}
 
 uint8_t ppu_read(uint16_t address){
 	address &= 0x3fff;
