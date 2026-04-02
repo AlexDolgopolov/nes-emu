@@ -33,6 +33,7 @@ typedef struct{
 	uint8_t ppudata_buffer;
 } PPUState;
 
+void ppu_render_frame();
 void ppu_powerup();
 void ppu_tick();
 uint8_t read_ppu_reg(PPURegisterType reg);

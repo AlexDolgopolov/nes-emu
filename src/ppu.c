@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include "ppu.h"
 
 uint8_t pattern_table[0x2000];
@@ -10,13 +11,49 @@ uint8_t oam_memory[256];
 PPUState ppu;
 bool ppu_vblank_nmi;
 
+const uint32_t nes_palette[64] = {
+    0x545454, 0x001E74, 0x081090, 0x300088, 0x440064, 0x5C0030, 0x540400, 0x3C1800,
+    0x202A00, 0x083A00, 0x004000, 0x003C00, 0x00323C, 0x000000, 0x000000, 0x000000,
+    0x989698, 0x084CC4, 0x3032EC, 0x5C1EE4, 0x8814B0, 0xA01464, 0x982220, 0x783C00,
+    0x545A00, 0x287200, 0x087C00, 0x007628, 0x006678, 0x000000, 0x000000, 0x000000,
+    0xECEEEC, 0x4C9AEC, 0x787CEC, 0xB062EC, 0xE454EC, 0xEC58B4, 0xEC6A64, 0xD48820,
+    0xA0AA00, 0x74C400, 0x4CD020, 0x38CC6C, 0x38B4CC, 0x3C3C3C, 0x000000, 0x000000,
+    0xECEEEC, 0xA8CCEC, 0xBCBCEC, 0xD4B2EC, 0xECAEEC, 0xECAED4, 0xECB4B0, 0xE4C490,
+    0xCCD278, 0xB4DE78, 0xA8E290, 0x98E2B4, 0xA0D6E4, 0xA0A2A0, 0x000000, 0x000000
+};
+
+uint32_t framebuffer[256 * 240];
+
+void ppu_render_frame(){
+	for(uint8_t tile_y = 0;tile_y < 30;tile_y++){
+		for(uint8_t tile_x = 0;tile_x < 32;tile_x++){
+			uint8_t tile_id = ppu_read(0x2000 + tile_y * 32 + tile_x);
+			uint8_t palette_number = (ppu_read(0x23C0 + (tile_y / 4) * 8 + (tile_x / 4)) >> (((tile_y % 4) / 2) * 4 + ((tile_x % 4) / 2) * 2)) & 0x03;
+			uint16_t pattern_table_addr = (((ppu.ppuctrl & (1 << 4)) == 0) ? 0 : 0x1000) + tile_id * 16;
+			for(uint8_t row = 0;row<8;row++){
+				uint8_t lb = pattern_table[pattern_table_addr+row];
+				uint8_t hb = pattern_table[pattern_table_addr+row+8];
+				for(uint8_t col = 0;col<8;col++){
+					uint8_t color_idx = ((hb >> 6) | (lb >> 7)) & 0b11;
+					lb <<= 1;
+					hb <<= 1;
+					uint8_t framebuffer_x = tile_x * 8 + col;
+					uint8_t framebuffer_y = tile_y * 8 + row;
+					uint8_t color_code = color_idx == 0 ? ppu_read(0x3f00) : ppu_read(0x3f00+(palette_number*4)+color_idx);
+					framebuffer[framebuffer_y*256+framebuffer_x] = nes_palette[color_code];
+				}
+			}
+		}	
+	}
+}
+
 void ppu_powerup(){
 	ppu_vblank_nmi = 0;
-	ppu.scanline = 0
-	ppu.cycle = 0
-	ppu.x_pos = 0
-	ppu.y_pos = 0
-	ppu.w = 0
+	ppu.scanline = 0;
+	ppu.cycle = 0;
+	ppu.x_pos = 0;
+	ppu.y_pos = 0;
+	ppu.w = 0;
 	ppu.ppuctrl = 0;
 	ppu.ppumask = 0;
 	ppu.ppu_status = 0; 
@@ -25,7 +62,9 @@ void ppu_powerup(){
 	ppu.ppudata_buffer = 0;
 }
 
-bool get_ppu_nmi() return ppu_vblank_nmi;
+bool get_ppu_nmi(){
+	return ppu_vblank_nmi;
+}
 
 void ppu_tick(){
 	ppu_vblank_nmi = ((ppu.ppuctrl & ppu.ppu_status) & (1 << 7)) != 0;
