@@ -3,6 +3,8 @@ import json
 import subprocess
 import threading
 from multiprocessing import Process
+from print_summary import *
+import copy
 
 cpu_path = "../build/Debug/my_app.exe"
 
@@ -25,29 +27,15 @@ class TestHandler():
 		self.debug = debug
 		self.name = name
 	def _send_msg(self, proc, msg):
-		if self.debug:
-			if type(msg) is int:
-				print(f"send: {hex(msg)}\n", end = "")
-			else:
-				print(f"send: {msg}\n", end = "")
 		proc.stdin.write(f"{msg}\n")
 		proc.stdin.flush()
 	def _wait_msg(self, proc, msg):
 		while True:
 			data = proc.stdout.readline().strip()
-			if data != "":
-				if self.debug:
-					print(data)
 			yield data
 			if data == msg:
 				break
 	def start(self):
-		if self.debug:
-			print(f"TEST = {self.name}")
-			print(f"INITIAL:")
-			print(self.initial_data)
-			print(f"FINAL: ")
-			print(self.final_data)
 		self.proc = subprocess.Popen([cpu_path, "1"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
 		self._send_msg(self.proc, "WREGISTERS\n")
 		self._send_msg(self.proc, self.initial_data['pc'])
@@ -65,8 +53,9 @@ class TestHandler():
 			for line in self._wait_msg(self.proc, "OK"):
 				pass
 		self._send_msg(self.proc, "STEP\n")
+		extended_cpu_string = ""
 		for line in self._wait_msg(self.proc, "OK"):
-			pass
+			extended_cpu_string = extended_cpu_string+line+'\n'
 		self._send_msg(self.proc, "RREGISTERS")
 		registers_list = list() # pc, s, a, y, p
 		for line in self._wait_msg(self.proc, "OK"):
@@ -85,39 +74,44 @@ class TestHandler():
 		r_idx = 0
 		ram_idx = 0
 
+		
 		for key,value in self.final_data.items():
 			if key != "ram":
 				if value != registers_list[r_idx]:
 					compare_result = False
-				if self.debug:
-					print(f"{key}: {hex(value)}, {hex(registers_list[r_idx])}")
-				break
-			else:
-				r_idx = r_idx + 1
-		else:
-			for ramval in value:
-				if ramval[1] != ramval_list[ram_idx]:
-					if self.debug:
-						print(f"ram compare error - {hex(ramval[0])}: {hex(ramval[1])}, {hex(ramval_list[ram_idx])}")
-					compare_result = False
 					break
 				else:
-					ram_idx = ram_idx + 1
-		if self.debug:
-			print(f"compare result = {compare_result}")
+					r_idx = r_idx + 1
+			else:
+				for ramval in value:
+					if ramval[1] != ramval_list[ram_idx]:
+						compare_result = False
+						break
+					else:
+						ram_idx = ram_idx + 1
+
+
+		real_state = {'pc': registers_list[0], 's': registers_list[1], 'a': registers_list[2], \
+					 'x': registers_list[3], 'y': registers_list[4], 'p': registers_list[5], \
+					 'ram': copy.deepcopy(self.final_data['ram'])}
+		ram_idx = 0
+		for ramdata in real_state['ram']:
+			ramdata[1] = ramval_list[ram_idx]
+			ram_idx = ram_idx + 1
+
 		self._send_msg(self.proc, "END")
 		self._wait_msg(self.proc, "OK")
 		self.proc.terminate()
 		self.proc.wait()
-		return compare_result
+		return [compare_result, real_state, extended_cpu_string]
 
 
 def create_and_execute(name, initial_data, final_data, debug, pid):
 	test = TestHandler(name, initial_data, final_data, debug, pid)
 	result = test.start()
-	print(f"{pid} : result = {result}")
-	if result == False:
-		print("WARNING!!\n.\n.\n.")
+	print(f"{pid} : result = {result[0]}")
+	if debug:
+		print_summary(initial_data, final_data, result[1], name, result[2])
 	return result
 
 class FileHandler():
@@ -134,12 +128,12 @@ class FileHandler():
 		self.files = os.listdir(test_dir)
 		self.threads_list = []
 		self.threads_clear = 0
-	def wait_thread(self):
+	def wait_thread(self, waitlen):
 		while(True):
 			for thread in self.threads_list:
 				if not thread.is_alive():
 					self.threads_list.remove(thread)
-			if len(self.threads_list) < self._threads:
+			if len(self.threads_list) < waitlen:
 				break
 	def run_test_in_file(self):
 		for filename in self.files:
@@ -170,7 +164,8 @@ class FileHandler():
 					thread = threading.Thread(target=create_and_execute, args=(test['name'], test['initial'], test['final'], self._cpu_debug, test['name']))
 					self.threads_list.append(thread)
 					thread.start()
-			self.wait_thread()
+					self.wait_thread(self._threads)
+			self.wait_thread(waitlen = 1)
 		pass
 	def run_tests(self):
 		file_filter = False
@@ -201,7 +196,8 @@ class FileHandler():
 					thread = threading.Thread(target=create_and_execute, args=(test['name'], test['initial'], test['final'], self._cpu_debug, test['name']))
 					self.threads_list.append(thread)
 					thread.start()
-			self.wait_thread()
+					self.wait_thread(self._threads)
+			self.wait_thread(waitlen = 1)
 	def start(self):
 		if self._all_files:
 			self.run_tests()

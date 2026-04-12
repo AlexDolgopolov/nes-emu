@@ -3,7 +3,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "cpu.h"
+#include "ppu.h"
 #include "cli.h"
+#include "boot.h"
+#include "framebuffero.h"
 CpuStateTypedef cpu;
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -18,7 +21,16 @@ int main(int argc, char *argv[]){
     // WORK MODE
       printf("%s, WORK MODE NOT IMPLEMENTED\n", argv[1]);
       fflush(stdout);
+      boot("../rom/smb.nes");
+      framebuffero_init();
       cpu_powerup(&cpu);
+      ppu_powerup();
+      while(1){
+        cpu_tick(&cpu);
+        for(int i=0;i<3;i++){
+          ppu_tick();
+        }
+      }
       printf("PROCESSOR SHUT DOWN\n");
       fflush(stdout);
       return 1;
@@ -26,6 +38,14 @@ int main(int argc, char *argv[]){
       printf("%s, TEST MODE\n", argv[1]);
       fflush(stdout);
       while(process_cli(&cpu) != 0);
+      printf("PROCESSOR SHUT DOWN\n");
+      fflush(stdout);
+      return 0;
+    } else if(strcmp(argv[1], "2") == 0){
+      // BOOT TEST MODE
+      printf("%s, TEST MODE\n", argv[1]);
+      fflush(stdout);
+      process_cli(&cpu);
       printf("PROCESSOR SHUT DOWN\n");
       fflush(stdout);
       return 0;

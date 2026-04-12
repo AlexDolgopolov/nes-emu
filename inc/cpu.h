@@ -28,6 +28,7 @@ typedef struct{
     int halt_cycle;
 } CpuStateTypedef;
 
+
 void cpu_powerup(CpuStateTypedef* cpu);
 void cpu_reset(CpuStateTypedef* cpu);
 void cpu_tick(CpuStateTypedef* cpu);

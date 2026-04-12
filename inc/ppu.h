@@ -1,6 +1,11 @@
 #ifndef PPU_H
 #define PPU_H
 
+#include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <framebuffero.h>
+
 typedef enum{
 	ScrollingSS, // single screen
 	ScrollingRL, // right-left
@@ -36,6 +41,7 @@ typedef struct{
 void ppu_render_frame();
 void ppu_powerup();
 void ppu_tick();
+bool get_ppu_nmi();
 uint8_t read_ppu_reg(PPURegisterType reg);
 void write_ppu_reg(PPURegisterType reg, uint8_t data);
 uint8_t ppu_read(uint16_t address);

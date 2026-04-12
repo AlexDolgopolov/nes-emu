@@ -3,7 +3,8 @@
 #include <stdio.h>
 #include <addrmode.h>
 #include <decode_lut.h>
-
+#include <interrupt.h>
+#include "debug.h"
 void cpu_powerup(CpuStateTypedef* cpu){
     cpu->halt_cycle = 0;
     cpu->A = 0;
@@ -25,25 +26,20 @@ void cpu_reset(CpuStateTypedef* cpu){
 }
 
 void cpu_tick(CpuStateTypedef* cpu){
-    printf("start tick\n");
-    fflush(stdout);
+    DEBUG("start tick\n", 0);
+    check_interrupt(cpu);
     uint16_t address = cpu->PC;
-    printf("address = %x\n", address);
-    fflush(stdout);
+    DEBUG("address = %x\n", address);
     uint8_t cmd = read_ram(address);
-    printf("cmd = %x\n", cmd);
-    fflush(stdout);
+    DEBUG("cmd = %x\n", cmd);
     Instruction instr = get_instruction(cmd);
-    printf("fetch instruction\n");
-    fflush(stdout);
+    if((void*)instr.addrmode == NULL){
+        DEBUG("ILLEGAL_INSTRUCTION\n", 0);
+        while(1);
+    }
     RetAddress  i_addr = instr.addrmode(cpu);
-    printf("fetch address\n");
-    fflush(stdout);
     cpu->PC += i_addr.pc_inc;
     //execute
     instr.operate(cpu, i_addr.address);
-    printf("finish execute\n");
-    fflush(stdout);
-    printf("end tick\n");
-    fflush(stdout);
+    DEBUG("end tick\n", 0);
 }

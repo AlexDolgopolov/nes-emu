@@ -475,7 +475,7 @@ Instruction opcode_lut[256] = {
     },
     [0xB4] = {
         .operate = opcode_LDY,
-        .addrmode = addrmode_ZPY,
+        .addrmode = addrmode_ZPX,
         .cycles = 4
     },
     [0xAC] = {
@@ -485,7 +485,7 @@ Instruction opcode_lut[256] = {
     },
     [0xBC] = {
         .operate = opcode_LDY,
-        .addrmode = addrmode_ABSY,
+        .addrmode = addrmode_ABSX,
         .cycles = 4
         },
     // LSR
@@ -768,7 +768,7 @@ Instruction opcode_lut[256] = {
     },
     [0x94] = {
         .operate = opcode_STY,
-        .addrmode = addrmode_ZPY,
+        .addrmode = addrmode_ZPX,
         .cycles = 4
     },
     [0x8C] = {

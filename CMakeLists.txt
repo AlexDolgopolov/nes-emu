@@ -21,6 +21,9 @@ set(SOURCES
     src/opcode_handle.c
     src/cli.c
     src/ppu.c
+    src/boot.c
+    src/framebuffero.c
+    src/interrupt.c
 )
 
 add_executable(my_app ${SOURCES})

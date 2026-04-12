@@ -1,7 +1,5 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include "ppu.h"
+#include "debug.h"
 
 uint8_t pattern_table[0x2000];
 uint8_t nametable[0x1000];
@@ -45,6 +43,7 @@ void ppu_render_frame(){
 			}
 		}	
 	}
+	framebuffero_output();
 }
 
 void ppu_powerup(){
@@ -74,52 +73,64 @@ void ppu_tick(){
 	}
 	if((ppu.scanline == 241) && (ppu.cycle == 1)) ppu.ppu_status |= 1 << 7;
 	if((ppu.scanline == 261) && (ppu.cycle == 1)) ppu.ppu_status &= ~(0b111 << 5);
-	if(ppu.scanline == 262)	ppu.scanline = 0;
+	if(ppu.scanline == 262){
+		ppu_render_frame();
+		ppu.scanline = 0;
+	}
 }
 
 uint8_t read_ppu_reg(PPURegisterType reg){
+	DEBUG_PPU("read ppu reg\n", 0);
 	switch(reg){
 		case PPUCTRL:{
+			DEBUG_PPU("PPUCTRL\n", 0);
 			//ERROR
-			printf("Warning: PPUCTRL read attempt\n");
+			DEBUG_PPU("Warning: PPUCTRL read attempt\n", 0);
 			fflush(stdout);
 			return 0x0;
 		}
 		case PPUMASK:{
+			DEBUG_PPU("PPUMASK\n", 0);
 			//ERROR
-			printf("Warning: PPUMASK read attempt\n");
+			DEBUG_PPU("Warning: PPUMASK read attempt\n", 0);
 			fflush(stdout);
 			return 0x0;
 		}
 		case PPUSTATUS:{
+			DEBUG_PPU("PPUSTATUS, %x\n", ppu.ppu_status);
 			uint8_t retval = ppu.ppu_status;
 			ppu.w = 0;
 			ppu.ppu_status &= ~(1 << 7);
 			return retval;
 		}
 		case OAMADDR:{
+			DEBUG_PPU("OAMADDR\n", 0);
 			//ERROR
-			printf("Warning: OAMADDR read attempt\n");
+			DEBUG_PPU("Warning: OAMADDR read attempt\n", 0);
 			fflush(stdout);
 			return 0x0;
 		}
 		case OAMDATA:{
+			DEBUG_PPU("OAMDATA\n", 0);
 			uint8_t retval = oam_memory[ppu.oam_addr];
 			return retval;
 		}
 		case PPUSCROLL:{
+			DEBUG_PPU("PPUSCROLL\n", 0);
 			//ERROR
-			printf("Warning: PPUSCROLL read attempt\n");
+			DEBUG_PPU("Warning: PPUSCROLL read attempt\n", 0);
 			fflush(stdout);
 			return 0x0;
 		}
 		case PPUADDR:{
+			DEBUG_PPU("PPUADDR\n", 0);
 			//ERROR
-			printf("Warning: PPUADDR read attempt\n");
+			DEBUG_PPU("Warning: PPUADDR read attempt\n", 0);
 			fflush(stdout);
 			return 0x0;
 		}
 		case PPUDATA:{
+			DEBUG_PPU("PPUDATA\n", 0);
 			uint8_t retval;
 			if(ppu.current_vram_addr >= 0x3f00 && ppu.current_vram_addr <= 0x3fff){
 				// palette
@@ -134,7 +145,7 @@ uint8_t read_ppu_reg(PPURegisterType reg){
 			return retval;
 		}
 		default:{
-			printf("Error: Undefined register");
+			DEBUG_PPU("Error: Undefined register", 0);
 			fflush(stdout);
 			while(1);
 		}
@@ -142,30 +153,38 @@ uint8_t read_ppu_reg(PPURegisterType reg){
 	return 0x0;
 }
 void write_ppu_reg(PPURegisterType reg, uint8_t data){
+	DEBUG_PPU("write ppu reg\n", 0);
 	switch(reg){
 		case PPUCTRL:{
+			DEBUG_PPU("PPUCTRL, %x\n", data);
+
 			ppu.ppuctrl = data;
 			return;
 		}
 		case PPUMASK:{
+			DEBUG_PPU("PPUMASK: %x\n", data);
 			ppu.ppumask = data;
 			return;
 		}
 		case PPUSTATUS:{
-			printf("Warning: PPUSTATUS write attempt\n");
+			DEBUG_PPU("PPUSTATUS\n", 0);
+			DEBUG_PPU("Warning: PPUSTATUS write attempt\n", 0);
 			fflush(stdout);
 			return;
 		}
 		case OAMADDR:{
+			DEBUG_PPU("OAMADDR: %x\n", data);
 			ppu.oam_addr = data;
 			return;
 		}
 		case OAMDATA:{
+			DEBUG_PPU("OAMDATA: %x\n", data);
 			oam_memory[ppu.oam_addr] = data;
 			ppu.oam_addr += 1;
 			return;
 		}
 		case PPUSCROLL:{
+			DEBUG_PPU("PPUSCROLL\n", 0);
 			if(ppu.w == 0){
 				ppu.x_pos = data;
 				ppu.w = 1;
@@ -176,6 +195,7 @@ void write_ppu_reg(PPURegisterType reg, uint8_t data){
 			return;
 		}
 		case PPUADDR:{
+			DEBUG_PPU("PPUADDR: %x\n", data);
 			if(ppu.w == 0){
 				ppu.current_vram_addr = (ppu.current_vram_addr & 0x00ff) | (data << 8);
 				ppu.w = 1;
@@ -183,14 +203,16 @@ void write_ppu_reg(PPURegisterType reg, uint8_t data){
 				ppu.current_vram_addr = (ppu.current_vram_addr & 0xff00) | (data);
 				ppu.w = 0;
 			}
+			return;
 		}
 		case PPUDATA:{
+			DEBUG_PPU("PPUDATA: %x\n", data);
 			ppu_write(ppu.current_vram_addr, data);
 			ppu.current_vram_addr += ((ppu.ppuctrl & (1 << 2)) != 0) ? 32 : 1;
 			return;
 		}
 		default:{
-			printf("Error: Undefined register");
+			DEBUG_PPU("Error: Undefined register", 0);
 			fflush(stdout);
 			while(1);
 		}
