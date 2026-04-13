@@ -5,6 +5,9 @@
 #include <decode_lut.h>
 #include <interrupt.h>
 #include "debug.h"
+
+uint16_t wait_cycle = 0;
+
 void cpu_powerup(CpuStateTypedef* cpu){
     cpu->halt_cycle = 0;
     cpu->A = 0;
@@ -25,8 +28,16 @@ void cpu_reset(CpuStateTypedef* cpu){
     cpu->halt_cycle = 0;
 }
 
+void set_wait_cycle(uint16_t wc_value){
+    if(wait_cycle < wc_value) wait_cycle = wc_value;
+}
+
 void cpu_tick(CpuStateTypedef* cpu){
-    DEBUG("start tick\n", 0);
+    if(wait_cycle != 0){
+        wait_cycle--;
+        return;
+    }
+    DEBUG("start tick\n");
     check_interrupt(cpu);
     uint16_t address = cpu->PC;
     DEBUG("address = %x\n", address);
@@ -34,12 +45,13 @@ void cpu_tick(CpuStateTypedef* cpu){
     DEBUG("cmd = %x\n", cmd);
     Instruction instr = get_instruction(cmd);
     if((void*)instr.addrmode == NULL){
-        DEBUG("ILLEGAL_INSTRUCTION\n", 0);
+        DEBUG("ILLEGAL_INSTRUCTION\n");
         while(1);
     }
     RetAddress  i_addr = instr.addrmode(cpu);
     cpu->PC += i_addr.pc_inc;
     //execute
-    instr.operate(cpu, i_addr.address);
-    DEBUG("end tick\n", 0);
+    uint16_t wc_val = instr.operate(cpu, i_addr.address);
+    set_wait_cycle(wc_val);
+    DEBUG("end tick\n");
 }

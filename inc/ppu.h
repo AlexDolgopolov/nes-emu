@@ -38,6 +38,7 @@ typedef struct{
 	uint8_t ppudata_buffer;
 } PPUState;
 
+uint32_t* get_framebuffer_ptr();
 void ppu_render_frame();
 void ppu_powerup();
 void ppu_tick();

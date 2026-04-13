@@ -1,8 +1,7 @@
 #include "framebuffero.h"
+#include "ppu.h"
 #include <stdio.h>
 #include <SDL3/SDL.h>
-
-extern uint32_t framebuffer[256 * 240];
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -46,6 +45,7 @@ bool framebuffero_init(){
 void framebuffero_output(){
     // 1. Копируем твой массив framebuffer в текстуру видеокарты
     // Pitch - это длина одной строки в байтах (256 пикселей * 4 байта)
+    uint32_t* framebuffer = get_framebuffer_ptr();
     SDL_UpdateTexture(texture, NULL, framebuffer, 256 * sizeof(uint32_t));
 
     // 2. Очищаем экран (необязательно, если текстура рисуется на весь экран, но хороший тон)

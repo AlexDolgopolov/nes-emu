@@ -22,6 +22,10 @@ const uint32_t nes_palette[64] = {
 
 uint32_t framebuffer[256 * 240];
 
+uint32_t* get_framebuffer_ptr(){
+	return framebuffer;
+}
+
 void ppu_render_frame(){
 	for(uint8_t tile_y = 0;tile_y < 30;tile_y++){
 		for(uint8_t tile_x = 0;tile_x < 32;tile_x++){
@@ -80,19 +84,19 @@ void ppu_tick(){
 }
 
 uint8_t read_ppu_reg(PPURegisterType reg){
-	DEBUG_PPU("read ppu reg\n", 0);
+	DEBUG_PPU("read ppu reg\n");
 	switch(reg){
 		case PPUCTRL:{
-			DEBUG_PPU("PPUCTRL\n", 0);
+			DEBUG_PPU("PPUCTRL\n");
 			//ERROR
-			DEBUG_PPU("Warning: PPUCTRL read attempt\n", 0);
+			DEBUG_PPU("Warning: PPUCTRL read attempt\n");
 			fflush(stdout);
 			return 0x0;
 		}
 		case PPUMASK:{
-			DEBUG_PPU("PPUMASK\n", 0);
+			DEBUG_PPU("PPUMASK\n");
 			//ERROR
-			DEBUG_PPU("Warning: PPUMASK read attempt\n", 0);
+			DEBUG_PPU("Warning: PPUMASK read attempt\n");
 			fflush(stdout);
 			return 0x0;
 		}
@@ -104,33 +108,33 @@ uint8_t read_ppu_reg(PPURegisterType reg){
 			return retval;
 		}
 		case OAMADDR:{
-			DEBUG_PPU("OAMADDR\n", 0);
+			DEBUG_PPU("OAMADDR\n");
 			//ERROR
-			DEBUG_PPU("Warning: OAMADDR read attempt\n", 0);
+			DEBUG_PPU("Warning: OAMADDR read attempt\n");
 			fflush(stdout);
 			return 0x0;
 		}
 		case OAMDATA:{
-			DEBUG_PPU("OAMDATA\n", 0);
+			DEBUG_PPU("OAMDATA\n");
 			uint8_t retval = oam_memory[ppu.oam_addr];
 			return retval;
 		}
 		case PPUSCROLL:{
-			DEBUG_PPU("PPUSCROLL\n", 0);
+			DEBUG_PPU("PPUSCROLL\n");
 			//ERROR
-			DEBUG_PPU("Warning: PPUSCROLL read attempt\n", 0);
+			DEBUG_PPU("Warning: PPUSCROLL read attempt\n");
 			fflush(stdout);
 			return 0x0;
 		}
 		case PPUADDR:{
-			DEBUG_PPU("PPUADDR\n", 0);
+			DEBUG_PPU("PPUADDR\n");
 			//ERROR
-			DEBUG_PPU("Warning: PPUADDR read attempt\n", 0);
+			DEBUG_PPU("Warning: PPUADDR read attempt\n");
 			fflush(stdout);
 			return 0x0;
 		}
 		case PPUDATA:{
-			DEBUG_PPU("PPUDATA\n", 0);
+			DEBUG_PPU("PPUDATA\n");
 			uint8_t retval;
 			if(ppu.current_vram_addr >= 0x3f00 && ppu.current_vram_addr <= 0x3fff){
 				// palette
@@ -145,7 +149,7 @@ uint8_t read_ppu_reg(PPURegisterType reg){
 			return retval;
 		}
 		default:{
-			DEBUG_PPU("Error: Undefined register", 0);
+			DEBUG_PPU("Error: Undefined register");
 			fflush(stdout);
 			while(1);
 		}
@@ -153,7 +157,7 @@ uint8_t read_ppu_reg(PPURegisterType reg){
 	return 0x0;
 }
 void write_ppu_reg(PPURegisterType reg, uint8_t data){
-	DEBUG_PPU("write ppu reg\n", 0);
+	DEBUG_PPU("write ppu reg\n");
 	switch(reg){
 		case PPUCTRL:{
 			DEBUG_PPU("PPUCTRL, %x\n", data);
@@ -167,8 +171,8 @@ void write_ppu_reg(PPURegisterType reg, uint8_t data){
 			return;
 		}
 		case PPUSTATUS:{
-			DEBUG_PPU("PPUSTATUS\n", 0);
-			DEBUG_PPU("Warning: PPUSTATUS write attempt\n", 0);
+			DEBUG_PPU("PPUSTATUS\n");
+			DEBUG_PPU("Warning: PPUSTATUS write attempt\n");
 			fflush(stdout);
 			return;
 		}
@@ -184,7 +188,7 @@ void write_ppu_reg(PPURegisterType reg, uint8_t data){
 			return;
 		}
 		case PPUSCROLL:{
-			DEBUG_PPU("PPUSCROLL\n", 0);
+			DEBUG_PPU("PPUSCROLL\n");
 			if(ppu.w == 0){
 				ppu.x_pos = data;
 				ppu.w = 1;
@@ -212,7 +216,7 @@ void write_ppu_reg(PPURegisterType reg, uint8_t data){
 			return;
 		}
 		default:{
-			DEBUG_PPU("Error: Undefined register", 0);
+			DEBUG_PPU("Error: Undefined register");
 			fflush(stdout);
 			while(1);
 		}

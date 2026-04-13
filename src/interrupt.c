@@ -9,7 +9,7 @@ void check_interrupt(CpuStateTypedef* cpu){
 	bool nmi_edge = (!nmi && new_nmi);
 	nmi = new_nmi;
 	if(nmi_edge){
-		DEBUG_PPU("nmi\n", 0);
+		DEBUG_PPU("nmi\n");
 		fflush(stdout);
 		push_stack(&(cpu->S), (uint8_t)(cpu->PC >> 8));
 		push_stack(&(cpu->S), (uint8_t)(cpu->PC));

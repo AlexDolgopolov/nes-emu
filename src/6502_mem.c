@@ -1,8 +1,6 @@
 #include "6502_mem.h"
 #include "debug.h"
 
-
-
 uint8_t cpu_ram[0x10000] = {0};
 
 uint8_t read_ram(uint16_t addr){

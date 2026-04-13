@@ -24,10 +24,12 @@ set(SOURCES
     src/boot.c
     src/framebuffero.c
     src/interrupt.c
+    src/nes_cycle.c
 )
 
 add_executable(my_app ${SOURCES})
 
+target_compile_definitions(my_app PRIVATE _CRT_SECURE_NO_WARNINGS)
 target_include_directories(my_app PRIVATE inc)
 
 target_link_libraries(my_app PRIVATE SDL3::SDL3-static)

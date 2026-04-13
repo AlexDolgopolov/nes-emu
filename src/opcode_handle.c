@@ -4,14 +4,14 @@
 
 uint8_t opcode_ILL(CpuStateTypedef* cpu, uint16_t mem_idx){
     // Illegal Insruction (This is not official opcode, but may be helpfull for debug)
-    DEBUG("illegal_istruction\n", 0);
+    DEBUG("illegal_istruction\n");
     fflush(stdout);
     while(1);
     return 0;
 }
 
 uint8_t opcode_ADC(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("ADC\n", 0);
+    DEBUG("ADC\n");
  // Add with Carry
  uint8_t mem_val = read_ram(mem_idx);
  uint16_t accumulator_val = cpu->A + mem_val + ((cpu->P_bit.C) ? 1 : 0);
@@ -25,7 +25,7 @@ uint8_t opcode_ADC(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_AND(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("AND\n", 0);
+    DEBUG("AND\n");
  // Bitwise AND
  uint8_t mem_val = read_ram(mem_idx);
  uint8_t accumulator = cpu->A & mem_val;
@@ -36,7 +36,7 @@ uint8_t opcode_AND(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_ASL(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("ASL\n", 0);
+    DEBUG("ASL\n");
     // Arithmetic Shift Left
     uint8_t mem_val = read_ram(mem_idx);
     cpu->P_bit.C = (mem_val & (1 << 7)) != 0;
@@ -48,7 +48,7 @@ uint8_t opcode_ASL(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_ASL_A(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("ASL\n", 0);
+    DEBUG("ASL\n");
     // Arithmetic Shift Left - Accumulator
     uint8_t mem_val = cpu->A;
     cpu->P_bit.C = (mem_val & (1 << 7)) != 0;
@@ -60,7 +60,7 @@ uint8_t opcode_ASL_A(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_BCC(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("BCC\n", 0);
+    DEBUG("BCC\n");
     // Branch if Carry Clear
     if(cpu->P_bit.C == 0){
         char mem_val = read_ram(mem_idx);
@@ -71,7 +71,7 @@ uint8_t opcode_BCC(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_BCS(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("BCS\n", 0);
+    DEBUG("BCS\n");
 // Branch if Carry Set
     if(cpu->P_bit.C == 1){
         char mem_val = read_ram(mem_idx);
@@ -82,7 +82,7 @@ uint8_t opcode_BCS(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_BEQ(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("BEQ\n", 0);
+    DEBUG("BEQ\n");
 // Branch if Equal
     if(cpu->P_bit.Z == 1){
         char mem_val = read_ram(mem_idx);
@@ -93,7 +93,7 @@ uint8_t opcode_BEQ(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_BIT(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("BIT\n", 0);
+    DEBUG("BIT\n");
 // Bit Test
     uint8_t mem_val = read_ram(mem_idx);
     uint8_t accumulator = cpu->A & mem_val;
@@ -104,7 +104,7 @@ uint8_t opcode_BIT(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_BMI(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("BMI\n", 0);
+    DEBUG("BMI\n");
 // Branch if Minus
     if(cpu->P_bit.N == 1){
         char mem_val = read_ram(mem_idx);
@@ -115,7 +115,7 @@ uint8_t opcode_BMI(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_BNE(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("BNE\n", 0);
+    DEBUG("BNE\n");
     // Branch if Not Equal
     if(cpu->P_bit.Z == 0){
         char mem_val = read_ram(mem_idx);
@@ -126,7 +126,7 @@ uint8_t opcode_BNE(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_BPL(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("BPL\n", 0);
+    DEBUG("BPL\n");
     // Branch if Plus
     if(cpu->P_bit.N == 0){
         char mem_val = read_ram(mem_idx);
@@ -138,7 +138,7 @@ uint8_t opcode_BPL(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_BRK(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("BRK\n", 0);
+    DEBUG("BRK\n");
     // Break (software IRQ)
     uint16_t pc = cpu->PC+1; // we already increment pc by 1
     push_stack(&(cpu->S), (pc & 0xff00) >> 8);
@@ -150,7 +150,7 @@ uint8_t opcode_BRK(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_BVC(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("BVC\n", 0);
+    DEBUG("BVC\n");
     // Branch if Overflow Clear
     if(cpu->P_bit.V == 0){
         char mem_val = read_ram(mem_idx);
@@ -161,7 +161,7 @@ uint8_t opcode_BVC(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_BVS(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("BVS\n", 0);
+    DEBUG("BVS\n");
     // Branch if Overflow Set
     if(cpu->P_bit.V == 1){
         char mem_val = read_ram(mem_idx);
@@ -172,35 +172,35 @@ uint8_t opcode_BVS(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_CLC(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("CLC\n", 0);
+    DEBUG("CLC\n");
     // Clear Carry
     cpu->P_bit.C = 0;
     return 0;
 }
 
 uint8_t opcode_CLD(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("CLD\n", 0);
+    DEBUG("CLD\n");
     // Clear Decimal
     cpu->P_bit.D = 0;
     return 0;
 }
 
 uint8_t opcode_CLI(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("CLI\n", 0);
+    DEBUG("CLI\n");
     // Clear Interrupt Disable
     cpu->P_bit.I = 0;
     return 0;
 }
 
 uint8_t opcode_CLV(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("CLV\n", 0);
+    DEBUG("CLV\n");
     // Clear Overflow
     cpu->P_bit.V = 0;
     return 0;
 }
 
 uint8_t opcode_CMP(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("CMP\n", 0);
+    DEBUG("CMP\n");
     // Compare A
     uint8_t mem_val = read_ram(mem_idx);
     uint8_t accumulator = cpu->A;
@@ -211,7 +211,7 @@ uint8_t opcode_CMP(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_CPX(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("CPX\n", 0);
+    DEBUG("CPX\n");
     // Compare X
     uint8_t mem_val = read_ram(mem_idx);
     uint8_t x_val = cpu->X;
@@ -224,7 +224,7 @@ uint8_t opcode_CPX(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_CPY(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("CPY\n", 0);
+    DEBUG("CPY\n");
     // Compare Y
     uint8_t mem_val = read_ram(mem_idx);
     uint8_t y_val = cpu->Y;
@@ -235,7 +235,7 @@ uint8_t opcode_CPY(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_DEC(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("DEC\n", 0);
+    DEBUG("DEC\n");
     // Decrement Memory
     uint8_t mem_val = read_ram(mem_idx);
     mem_val--;
@@ -246,7 +246,7 @@ uint8_t opcode_DEC(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_DEX(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("DEX\n", 0);
+    DEBUG("DEX\n");
     // Decrement X
     uint8_t mem_val = cpu->X;
     mem_val--;
@@ -257,7 +257,7 @@ uint8_t opcode_DEX(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_DEY(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("DEY\n", 0);
+    DEBUG("DEY\n");
     // Decrement Y
     uint8_t mem_val = cpu->Y;
     mem_val--;
@@ -269,7 +269,7 @@ uint8_t opcode_DEY(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_EOR(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("EOR\n", 0);
+    DEBUG("EOR\n");
     // Bitwise XOR
     uint8_t mem_val = read_ram(mem_idx);
     uint8_t result = cpu->A ^ mem_val;
@@ -280,7 +280,7 @@ return 0;
 }
 
 uint8_t opcode_INC(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("INC\n", 0);
+    DEBUG("INC\n");
     // Increment Memory
     uint8_t mem_val = read_ram(mem_idx);
     mem_val++;
@@ -291,7 +291,7 @@ uint8_t opcode_INC(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_INX(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("INX\n", 0);
+    DEBUG("INX\n");
     // Increment X
     uint8_t mem_val = cpu->X;
     mem_val++;
@@ -302,7 +302,7 @@ uint8_t opcode_INX(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_INY(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("INY\n", 0);
+    DEBUG("INY\n");
     // Increment Y
     uint8_t mem_val = cpu->Y;
     mem_val++;
@@ -313,31 +313,23 @@ uint8_t opcode_INY(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_JMP(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("JMP\n", 0);
+    DEBUG("JMP\n");
     // Jump
     cpu->PC = mem_idx;
     return 0;
 }
 uint8_t opcode_JSR(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("JSR\n", 0);
-    
-    // Адрес возврата = адрес последнего байта инструкции JSR
+    DEBUG("JSR\n");
     uint16_t return_addr = cpu->PC - 1;
-
-    // Пушим в стек: сначала старший, потом младший байт
     push_stack(&(cpu->S), (uint8_t)(return_addr >> 8));
     push_stack(&(cpu->S), (uint8_t)(return_addr & 0xFF));
-    
-    //DEBUG("JSR: saving return_addr=0x%04X, jumping to 0x%04X\n", return_addr, mem_idx);
-    printf("JSR: saving return_addr=0x%04X, jumping to 0x%04X\n", return_addr, mem_idx);
-    // Прыгаем на целевой адрес
+    DEBUG("JSR: saving return_addr=0x%04X, jumping to 0x%04X\n", return_addr, mem_idx);
     cpu->PC = mem_idx;
-    
     return 0;
 }
 
 uint8_t opcode_LDA(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("LDA\n", 0);
+    DEBUG("LDA\n");
     DEBUG("%x\n", mem_idx);
     // Load A
     uint8_t mem_val = read_ram(mem_idx);
@@ -348,7 +340,7 @@ uint8_t opcode_LDA(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_LDX(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("LDX\n", 0);
+    DEBUG("LDX\n");
     // Load X
     uint8_t mem_val = read_ram(mem_idx);
     cpu->X = mem_val;
@@ -358,7 +350,7 @@ uint8_t opcode_LDX(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_LDY(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("LDY\n", 0);
+    DEBUG("LDY\n");
     // Load Y
     uint8_t mem_val = read_ram(mem_idx);
     cpu->Y = mem_val;
@@ -368,7 +360,7 @@ uint8_t opcode_LDY(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_LSR(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("LSR\n", 0);
+    DEBUG("LSR\n");
     // Logical Shift Right
     uint8_t mem_val = read_ram(mem_idx);
     cpu->P_bit.C = (mem_val & (1 << 0)) != 0;
@@ -380,7 +372,7 @@ uint8_t opcode_LSR(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_LSR_A(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("LSR\n", 0);
+    DEBUG("LSR\n");
     // Logical Shift Right - Accumulator
     uint8_t mem_val = cpu->A;
     cpu->P_bit.C = (mem_val & (1 << 0)) != 0;
@@ -392,13 +384,13 @@ uint8_t opcode_LSR_A(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_NOP(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("NOP\n", 0);
+    DEBUG("NOP\n");
     // No Operation
     return 0;
 }
 
 uint8_t opcode_ORA(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("ORA\n", 0);
+    DEBUG("ORA\n");
     // Bitwise OR
     uint8_t mem_val = read_ram(mem_idx);
     uint8_t accumulator = cpu->A | mem_val;
@@ -412,21 +404,21 @@ uint8_t opcode_ORA(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_PHA(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("PHA\n", 0);
+    DEBUG("PHA\n");
     // Push A
     push_stack(&(cpu->S), cpu->A);
     return 0;
 }
 
 uint8_t opcode_PHP(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("PHP\n", 0);
+    DEBUG("PHP\n");
     // Push Processor Status
     push_stack(&(cpu->S), cpu->P_val | (1 << 4));
     return 0;
 }
 
 uint8_t opcode_PLA(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("PLA\n", 0);
+    DEBUG("PLA\n");
     // Pull A
     cpu->A = pop_stack(&(cpu->S));
     cpu->P_bit.Z = (cpu->A == 0);
@@ -435,7 +427,7 @@ uint8_t opcode_PLA(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_PLP(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("PLP\n", 0);
+    DEBUG("PLP\n");
     // Pull A
     cpu->P_val &= ((1 << 4) | (1 << 5));
     cpu->P_val |= (pop_stack(&(cpu->S))) & ~((1 << 4) | (1 << 5));
@@ -443,7 +435,7 @@ uint8_t opcode_PLP(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_ROL(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("ROL\n", 0);
+    DEBUG("ROL\n");
     // Rotate Left
     uint8_t mem_val = read_ram(mem_idx);
     bool carry = (mem_val & (1 << 7)) != 0;
@@ -457,7 +449,7 @@ uint8_t opcode_ROL(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_ROL_A(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("ROL\n", 0);
+    DEBUG("ROL\n");
     // Rotate Left - Accumulator
     uint8_t mem_val = cpu->A;
     bool carry = (mem_val & (1 << 7)) != 0;
@@ -471,7 +463,7 @@ uint8_t opcode_ROL_A(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_ROR(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("ROR\n", 0);
+    DEBUG("ROR\n");
     // Rotate Right
     uint8_t mem_val = read_ram(mem_idx);
     bool carry = (mem_val & 0b1) != 0;
@@ -485,7 +477,7 @@ uint8_t opcode_ROR(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_ROR_A(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("ROR\n", 0);
+    DEBUG("ROR\n");
     // Rotate Right - Accumulator
     uint8_t mem_val = cpu->A;
     bool carry = (mem_val & 0b1) != 0;
@@ -499,7 +491,7 @@ uint8_t opcode_ROR_A(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_RTI(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("RTI\n", 0);
+    DEBUG("RTI\n");
     // Return from Interrupt
     cpu->P_val = (pop_stack(&(cpu->S)) & ~(0b11 << 4)) | (cpu->P_val & (0b11 << 4));
     uint8_t new_pc_lb = pop_stack(&(cpu->S));
@@ -509,66 +501,51 @@ uint8_t opcode_RTI(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_RTS(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("RTS\n", 0);
+    DEBUG("RTS\n");
     // Return from Subroutine
     DEBUG("SP = %x\n", cpu->S);
     uint8_t new_pc_lb = pop_stack(&(cpu->S));
     uint8_t new_pc_hb = pop_stack(&(cpu->S));
-    //DEBUG("RTS: popped addr=0x%04X, jumping to 0x%04X\n", ((new_pc_hb << 8) | new_pc_lb), ((new_pc_hb << 8) | new_pc_lb) + 1);
-    printf("RTS: popped addr=0x%04X, jumping to 0x%04X\n", ((new_pc_hb << 8) | new_pc_lb), ((new_pc_hb << 8) | new_pc_lb) + 1);
+    DEBUG("RTS: popped addr=0x%04X, jumping to 0x%04X\n", ((new_pc_hb << 8) | new_pc_lb), ((new_pc_hb << 8) | new_pc_lb) + 1);
     cpu->PC = ((new_pc_hb << 8) | new_pc_lb) + 1;
     return 0;
 }
 
 uint8_t opcode_SBC(CpuStateTypedef* cpu, uint16_t mem_idx) {
     uint8_t mem_val = read_ram(mem_idx);
-    
-    // Инвертируем только в пределах 8 бит
     uint8_t inverted = mem_val ^ 0xFF;
-    
-    // Используем uint16_t для отслеживания переноса
     uint16_t result = (uint16_t)cpu->A + (uint16_t)inverted + (uint16_t)cpu->P_bit.C;
-    
-    // Carry = 1, если результат > 255 (не было заёма)
     cpu->P_bit.C = (result > 0xFF);
-    
-    // Zero: проверяем только младшие 8 бит
     cpu->P_bit.Z = ((result & 0xFF) == 0);
-    
-    // Overflow: знаковое переполнение
     cpu->P_bit.V = ((cpu->A ^ result) & (inverted ^ result) & 0x80) != 0;
-    
-    // Negative: бит 7 результата
     cpu->P_bit.N = (result & 0x80) != 0;
-    
     cpu->A = (uint8_t)result;
-    
     return 0;
 }
 
 uint8_t opcode_SEC(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("SEC\n", 0);
+    DEBUG("SEC\n");
     // Set Carry
     cpu->P_bit.C = 1;
     return 0;
 }
 
 uint8_t opcode_SED(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("SED\n", 0);
+    DEBUG("SED\n");
     // Set Decimal
     cpu->P_bit.D = 1;
     return 0;
 }
 
 uint8_t opcode_SEI(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("SEI\n", 0);
+    DEBUG("SEI\n");
     // Set Interrupt Disable
     cpu->P_bit.I = 1;
     return 0;
 }
 
 uint8_t opcode_STA(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("STA\n", 0);
+    DEBUG("STA\n");
     DEBUG("mem_idx = %x\n", mem_idx);
     // Store A
     write_ram(mem_idx, cpu->A);
@@ -576,14 +553,14 @@ uint8_t opcode_STA(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_STX(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("STX\n", 0);
+    DEBUG("STX\n");
     // Store X
     write_ram(mem_idx, cpu->X);
     return 0;
 }
 
 uint8_t opcode_STY(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("STY\n", 0);
+    DEBUG("STY\n");
     // Store Y
     DEBUG("mem_idx = %x\n", mem_idx);
     write_ram(mem_idx, cpu->Y);
@@ -591,7 +568,7 @@ uint8_t opcode_STY(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_TAX(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("TAX\n", 0);
+    DEBUG("TAX\n");
     // Transfer A to X
     cpu->X = cpu->A;
     cpu->P_bit.Z = (cpu->X == 0);
@@ -600,7 +577,7 @@ uint8_t opcode_TAX(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_TAY(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("TAY\n", 0);
+    DEBUG("TAY\n");
     // Transfer A to Y
     cpu->Y = cpu->A;
     cpu->P_bit.Z = (cpu->Y == 0);
@@ -609,7 +586,7 @@ uint8_t opcode_TAY(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_TSX(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("TSX\n", 0);
+    DEBUG("TSX\n");
     // Transfer S to X
     cpu->X = cpu->S;
     cpu->P_bit.Z = (cpu->X == 0);
@@ -618,7 +595,7 @@ uint8_t opcode_TSX(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_TXA(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("TXA\n", 0);
+    DEBUG("TXA\n");
     // Transfer X to A
     cpu->A = cpu->X;
     cpu->P_bit.Z = (cpu->A == 0);
@@ -628,14 +605,14 @@ uint8_t opcode_TXA(CpuStateTypedef* cpu, uint16_t mem_idx){
 }
 
 uint8_t opcode_TXS(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("TXS\n", 0);
+    DEBUG("TXS\n");
     // Transfer X to S
     cpu->S = cpu->X;
     return 0;
 }
 
 uint8_t opcode_TYA(CpuStateTypedef* cpu, uint16_t mem_idx){
-    DEBUG("TYA\n", 0);
+    DEBUG("TYA\n");
     // Transfer Y to A
     cpu->A = cpu->Y;
     cpu->P_bit.Z = (cpu->A == 0);

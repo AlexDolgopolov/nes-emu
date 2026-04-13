@@ -2,8 +2,7 @@
 #include <SDL3/SDL_main.h> 
 #include <stdio.h>
 #include <string.h>
-#include "cpu.h"
-#include "ppu.h"
+#include "nes_cycle.h"
 #include "cli.h"
 #include "boot.h"
 #include "framebuffero.h"
@@ -25,12 +24,7 @@ int main(int argc, char *argv[]){
       framebuffero_init();
       cpu_powerup(&cpu);
       ppu_powerup();
-      while(1){
-        cpu_tick(&cpu);
-        for(int i=0;i<3;i++){
-          ppu_tick();
-        }
-      }
+      nes_cycle();
       printf("PROCESSOR SHUT DOWN\n");
       fflush(stdout);
       return 1;

@@ -1,16 +1,16 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-//#define DEBUG_CPU
-//#define DEBUG_PPU
-//#define DEBUG_STACK
-//#define DEBUG_RAM
+//#define DEBUG_CPU_ALLOW
+//#define DEBUG_PPU_ALLOW
+//#define DEBUG_STACK_ALLOW
+//#define DEBUG_RAM_ALLOW
 //#define CPU_TEST_MODE
 
-#ifdef DEBUG_RAM
+#ifdef DEBUG_RAM_ALLOW
 
 	#define DEBUG_RAM(x, ...) do{ \
-								printf(x, __VA_ARGS__); \
+								printf(x, ##__VA_ARGS__); \
 								fflush(stdout); \
 							}while(0)
 
@@ -21,10 +21,10 @@
 #endif
 
 
-#ifdef DEBUG_STACK
+#ifdef DEBUG_STACK_ALLOW
 
 	#define DEBUG_STACK(x, ...) do{ \
-								printf(x, __VA_ARGS__); \
+								printf(x, ##__VA_ARGS__); \
 								fflush(stdout); \
 							}while(0)
 
@@ -34,10 +34,10 @@
 
 #endif
 
-#ifdef DEBUG_CPU
+#ifdef DEBUG_CPU_ALLOW
 
 	#define DEBUG(x, ...) do{ \
-								printf(x, __VA_ARGS__); \
+								printf(x, ##__VA_ARGS__); \
 								fflush(stdout); \
 							}while(0)
 
@@ -47,10 +47,10 @@
 
 #endif
 
-#ifdef DEBUG_PPU
+#ifdef DEBUG_PPU_ALLOW
 
 	#define DEBUG_PPU(x, ...) do{ \
-								printf(x, __VA_ARGS__); \
+								printf(x, ##__VA_ARGS__); \
 								fflush(stdout); \
 							}while(0)
 
