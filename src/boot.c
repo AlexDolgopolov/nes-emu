@@ -26,7 +26,7 @@ static void read_rom_data(FILE* file, uint8_t* buffer, size_t size){
 uint8_t temp_chr_mem[1*8192];
 uint8_t temp_prg_mem[2*16384];
 extern uint8_t cpu_ram[0x10000];
-
+extern PPUScrollingType scrolling;
 
 void boot(const char* path){
 	framebuffero_init();
@@ -59,5 +59,5 @@ void boot(const char* path){
 	for(uint32_t i=0;i<ssize;i++){
 		ppu_write(i, temp_chr_mem[i]);
 	}
-
+	scrolling = ScrollingRL;
 }

@@ -34,26 +34,45 @@ void write_oam_data(uint8_t addr, uint8_t data){
 
 void ppu_render_frame(){
 	// background render
-	for(uint8_t tile_y = 0;tile_y < 30;tile_y++){
-		for(uint8_t tile_x = 0;tile_x < 32;tile_x++){
-			uint8_t tile_id = ppu_read(0x2000 + tile_y * 32 + tile_x);
-			uint8_t palette_number = (ppu_read(0x23C0 + (tile_y / 4) * 8 + (tile_x / 4)) >> (((tile_y % 4) / 2) * 4 + ((tile_x % 4) / 2) * 2)) & 0x03;
-			uint16_t pattern_table_addr = (((ppu.ppuctrl & (1 << 4)) == 0) ? 0 : 0x1000) + tile_id * 16;
-			for(uint8_t row = 0;row<8;row++){
-				uint8_t lb = pattern_table[pattern_table_addr+row];
-				uint8_t hb = pattern_table[pattern_table_addr+row+8];
-				for(uint8_t col = 0;col<8;col++){
-					uint8_t color_idx = ((hb >> 6) | (lb >> 7)) & 0b11;
-					lb <<= 1;
-					hb <<= 1;
-					uint8_t framebuffer_x = tile_x * 8 + col;
-					uint8_t framebuffer_y = tile_y * 8 + row;
-					uint8_t color_code = color_idx == 0 ? ppu_read(0x3f00) : ppu_read(0x3f00+(palette_number*4)+color_idx);
-					framebuffer[framebuffer_y*256+framebuffer_x] = nes_palette[color_code];
-				}
-			}
+	uint16_t scroll_x = ppu.x_pos + (ppu.ppuctrl & 0x01) * 256;
+	uint16_t scroll_y = ppu.y_pos + ((ppu.ppuctrl >> 1) & 0x01) * 240;
+	for(int screen_y = 0; screen_y < 240; screen_y++){
+		for(int screen_x = 0; screen_x < 256; screen_x++){
+		    uint16_t world_x = (screen_x + scroll_x) % 512;
+        	uint16_t world_y = (screen_y + scroll_y) % 480;
+			
+        	uint16_t nametable_base = 0x2000 + (world_x / 256) * 0x0400 + (world_y / 240) * 0x0800;
+       
+        	uint16_t local_x = world_x % 256;
+        	uint16_t local_y = world_y % 240;
+        
+        	uint16_t tile_x = local_x / 8;
+        	uint16_t tile_y = local_y / 8;
+        	uint16_t pixel_x = local_x % 8;
+        	uint16_t pixel_y = local_y % 8;
+        
+        	uint16_t tile_id = ppu_read(nametable_base + tile_y * 32 + tile_x);
+        
+	        // Атрибуты
+    	    uint16_t attribute_base = nametable_base + 0x03C0;
+        	uint16_t attribute_byte = ppu_read(attribute_base + (tile_y/4)*8 + (tile_x/4));
+        	uint16_t shift = ((tile_y%4)/2)*4 + ((tile_x%4)/2)*2;
+        	uint16_t palette_number = (attribute_byte >> shift) & 0x03;
+        
+	        // Паттерн
+        	uint16_t pattern_base = ((ppu.ppuctrl & 0x10) ? 0x1000 : 0x0000);
+        	uint16_t tile_addr = pattern_base + tile_id * 16;
+        	uint16_t lb = ppu_read(tile_addr + pixel_y);
+        	uint16_t hb = ppu_read(tile_addr + pixel_y + 8);
+        	uint16_t bit = 7 - pixel_x;
+        	uint16_t color_idx = ((hb >> bit) & 1) << 1 | ((lb >> bit) & 1);
+		     
+        	// Цвет
+        	uint16_t color_code = (color_idx == 0) ? ppu_read(0x3F00) : ppu_read(0x3F00 + palette_number*4 + color_idx);
+        
+        	framebuffer[screen_y * 256 + screen_x] = nes_palette[color_code & 0x3f];
 		}	
-	}
+	}      
 	// sprite render
 	uint16_t base_addr = (ppu.ppuctrl & (1 << 3)) != 0 ? 0x1000 : 0x0000;
 	uint8_t* sprite_data = &oam_memory[252];
@@ -85,7 +104,7 @@ void ppu_render_frame(){
 				if(py >= 240) continue;
 				if(priority == 1 && (framebuffer[py*256+px] != nes_palette[ppu_read(0x3F00)])) continue;
 				uint8_t color_code = ppu_read(0x3F10 + palette_number * 4 + color_idx);
-				framebuffer[py * 256 + px] = nes_palette[color_code];
+				framebuffer[py * 256 + px] = nes_palette[color_code & 0x3f];
 			}	
 		}
 	}
@@ -119,7 +138,7 @@ void ppu_tick(){
 		ppu.scanline++;
 	}
 	if((ppu.scanline == (oam_memory[0]+1)) && ppu.cycle == 1 && (ppu.ppumask & 0x18)) ppu.ppu_status |= 1 << 6;
-	if((ppu.scanline == 241) && (ppu.cycle == 1)) ppu_render_frame();
+	if((ppu.scanline == 240) && (ppu.cycle == 1)) ppu_render_frame();
 	if((ppu.scanline == 241) && (ppu.cycle == 1)) ppu.ppu_status |= 1 << 7;
 	if((ppu.scanline == 261) && (ppu.cycle == 1)) ppu.ppu_status &= ~(0b111 << 5);
 	if(ppu.scanline == 262){
