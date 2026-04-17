@@ -31,6 +31,7 @@ typedef struct{
 
 void cpu_powerup(CpuStateTypedef* cpu);
 void cpu_reset(CpuStateTypedef* cpu);
+void set_wait_cycle(uint16_t wc_value);
 void cpu_tick(CpuStateTypedef* cpu);
 
 #endif

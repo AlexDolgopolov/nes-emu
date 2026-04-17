@@ -37,7 +37,11 @@ DEBUG_RAM("ram write addr = %x, data = %x\n", addr, val);
     } else if((addr >= 0x4000 && addr < 0x4020)){
         // NES APU AND IO REGISTERS
         // addr & 0x1f
-        cpu_ram[addr] = val;
+        if(addr == 0x4014){
+            write_oam_dma(val);
+        } else {
+            cpu_ram[addr] = val;
+        }
     } else {
         cpu_ram[addr] = val;
     }

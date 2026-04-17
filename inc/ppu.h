@@ -39,6 +39,7 @@ typedef struct{
 } PPUState;
 
 uint32_t* get_framebuffer_ptr();
+void write_oam_data(uint8_t addr, uint8_t data);
 void ppu_render_frame();
 void ppu_powerup();
 void ppu_tick();

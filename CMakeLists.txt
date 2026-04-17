@@ -25,6 +25,7 @@ set(SOURCES
     src/framebuffero.c
     src/interrupt.c
     src/nes_cycle.c
+    src/oam_dma.c
 )
 
 add_executable(my_app ${SOURCES})

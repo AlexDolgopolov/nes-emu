@@ -6,6 +6,7 @@ uint8_t nametable[0x1000];
 PPUScrollingType scrolling;
 uint8_t palette[32];
 uint8_t oam_memory[256];
+
 PPUState ppu;
 bool ppu_vblank_nmi;
 
@@ -26,7 +27,13 @@ uint32_t* get_framebuffer_ptr(){
 	return framebuffer;
 }
 
+void write_oam_data(uint8_t addr, uint8_t data){
+	oam_memory[addr] = data;
+}
+
+
 void ppu_render_frame(){
+	// background render
 	for(uint8_t tile_y = 0;tile_y < 30;tile_y++){
 		for(uint8_t tile_x = 0;tile_x < 32;tile_x++){
 			uint8_t tile_id = ppu_read(0x2000 + tile_y * 32 + tile_x);
@@ -47,6 +54,42 @@ void ppu_render_frame(){
 			}
 		}	
 	}
+	// sprite render
+	uint16_t base_addr = (ppu.ppuctrl & (1 << 3)) != 0 ? 0x1000 : 0x0000;
+	uint8_t* sprite_data = &oam_memory[252];
+	for(int sprite = 63; sprite >= 0; sprite--){
+		uint8_t screen_y = sprite_data[0]+1;
+		uint8_t tile_id = sprite_data[1];
+		uint8_t attributes = sprite_data[2];
+		uint8_t oam_x = sprite_data[3];
+		sprite_data-=4;
+		if(screen_y >= 240) continue;
+		uint16_t tile_addr = base_addr + tile_id * 16;
+		uint8_t palette_number = attributes & 0x03;          // биты 0-1
+		uint8_t priority       = (attributes >> 5) & 0x01;   // бит 5
+		uint8_t flip_h         = (attributes >> 6) & 0x01;   // бит 6
+		uint8_t flip_v         = (attributes >> 7) & 0x01;   // бит 7
+		for(uint8_t row = 0; row < 8;row++){
+			uint8_t actual_row = flip_v == 1 ? 7 - row : row;
+			uint8_t lb = ppu_read(tile_addr + actual_row);       // младший битплейн
+			uint8_t hb = ppu_read(tile_addr + actual_row + 8);   // старший битплейн
+			for(uint8_t col = 0; col < 8;col++){
+				uint8_t bit_position = flip_h == 1 ? col : 7 - col;
+				uint8_t low_bit  = (lb >> bit_position) & 1;
+				uint8_t high_bit = (hb >> bit_position) & 1;
+				uint8_t color_idx = (high_bit << 1) | low_bit;
+				if(color_idx == 0) continue;
+				uint16_t px = oam_x + col;
+				if(px >= 256) continue;
+				uint8_t py = screen_y + row;
+				if(py >= 240) continue;
+				if(priority == 1 && (framebuffer[py*256+px] != nes_palette[ppu_read(0x3F00)])) continue;
+				uint8_t color_code = ppu_read(0x3F10 + palette_number * 4 + color_idx);
+				framebuffer[py * 256 + px] = nes_palette[color_code];
+			}	
+		}
+	}
+
 	framebuffero_output();
 }
 
@@ -75,10 +118,11 @@ void ppu_tick(){
 		ppu.cycle = 0;
 		ppu.scanline++;
 	}
+	if((ppu.scanline == (oam_memory[0]+1)) && ppu.cycle == 1 && (ppu.ppumask & 0x18)) ppu.ppu_status |= 1 << 6;
+	if((ppu.scanline == 241) && (ppu.cycle == 1)) ppu_render_frame();
 	if((ppu.scanline == 241) && (ppu.cycle == 1)) ppu.ppu_status |= 1 << 7;
 	if((ppu.scanline == 261) && (ppu.cycle == 1)) ppu.ppu_status &= ~(0b111 << 5);
 	if(ppu.scanline == 262){
-		ppu_render_frame();
 		ppu.scanline = 0;
 	}
 }
