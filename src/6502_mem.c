@@ -1,5 +1,6 @@
 #include "6502_mem.h"
 #include "debug.h"
+#include "controller.h"
 
 uint8_t cpu_ram[0x10000] = {0};
 
@@ -15,7 +16,11 @@ uint8_t read_ram(uint16_t addr){
     } else if((addr >= 0x4000 && addr < 0x4020)){
         // NES APU AND IO REGISTERS
         // addr & 0x1f
-        retval = cpu_ram[addr];
+        if(addr == 0x4016 || addr == 0x4017){
+            retval = controller_read(0);
+        } else {
+            retval = cpu_ram[addr];
+        }
     } else {
         retval = cpu_ram[addr];
     }
@@ -39,6 +44,9 @@ DEBUG_RAM("ram write addr = %x, data = %x\n", addr, val);
         // addr & 0x1f
         if(addr == 0x4014){
             write_oam_dma(val);
+        } else if(addr == 0x4016){
+            if(val == 0x1) controller_signal(SignalStrobe);
+            else if (val == 0x0) controller_signal(SignalLatch);
         } else {
             cpu_ram[addr] = val;
         }

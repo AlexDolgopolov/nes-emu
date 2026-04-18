@@ -29,7 +29,6 @@ extern uint8_t cpu_ram[0x10000];
 extern PPUScrollingType scrolling;
 
 void boot(const char* path){
-	framebuffero_init();
 	nes_file = fopen(path, "rb");
 	uint8_t magic_word[4];
 	read_rom_data(nes_file, magic_word, 4);
@@ -41,6 +40,8 @@ void boot(const char* path){
 	read_rom_data(nes_file, &flag0, 1);
 	uint8_t flag1;
 	read_rom_data(nes_file, &flag1, 1);
+	scrolling = ((flag0 & (1 << 0)) != 0) ? ScrollingRL : ScrollingUD;
+	if((flag0 & (1 << 3)) != 0) scrolling = ScrollingFS;
 	printf("%.*s\n", 4, magic_word);
 	printf("prg_rom = %d\n", rom_meta.prg_rom_size);
 	printf("chr_rom = %d\n", rom_meta.chr_rom_size);
@@ -59,5 +60,5 @@ void boot(const char* path){
 	for(uint32_t i=0;i<ssize;i++){
 		ppu_write(i, temp_chr_mem[i]);
 	}
-	scrolling = ScrollingRL;
+	
 }

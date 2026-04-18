@@ -42,12 +42,14 @@ extern CpuStateTypedef cpu;
 #define CPU_PER_FRAME   29781
 #define FRAME_US        16639
 
+bool nes_running = true;
+
 void nes_cycle(){
     timer_init();
 
     uint64_t next_frame = get_us();
 
-    while (1) {
+    while (nes_running) {
         for (int i = 0; i < CPU_PER_FRAME; i++) {
             cpu_tick(&cpu);
             ppu_tick();

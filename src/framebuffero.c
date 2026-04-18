@@ -2,10 +2,12 @@
 #include "ppu.h"
 #include <stdio.h>
 #include <SDL3/SDL.h>
+#include "debug.h"
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
 SDL_Texture* texture = NULL;
+extern bool nes_running;
 
 bool framebuffero_init(){
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -13,19 +15,11 @@ bool framebuffero_init(){
         return false;
     }
 
-    // 1. Создаем строго ТОЛЬКО окно
-    window = SDL_CreateWindow("NES Emulator", 256 * 3, 240 * 3, 0);
-    if (!window) {
-        SDL_Log("Window Error: %s", SDL_GetError());
-        return false;
+    if (!SDL_CreateWindowAndRenderer("Nes Emulator", 256 * 3, 240 * 3, 0, &window, &renderer)) {
+        SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
+        return SDL_APP_FAILURE;
     }
-
-    // 2. Создаем ТОЛЬКО рендерер, привязанный к нашему окну
-    renderer = SDL_CreateRenderer(window, NULL);
-    if (!renderer) {
-        SDL_Log("Renderer Error: %s", SDL_GetError());
-        return false;
-    }
+    DEBUG_PPU("Create window\n");
 
     SDL_SetRenderLogicalPresentation(renderer, 256, 240, SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
@@ -56,5 +50,12 @@ void framebuffero_output(){
 
     // 4. Показываем результат пользователю
     SDL_RenderPresent(renderer);
+
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_EVENT_QUIT) {
+            nes_running = false;
+        }
+    }
 }
 

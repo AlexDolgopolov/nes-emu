@@ -1,14 +1,11 @@
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h> 
 #include <stdio.h>
 #include <string.h>
 #include "nes_cycle.h"
 #include "cli.h"
 #include "boot.h"
 #include "framebuffero.h"
+
 CpuStateTypedef cpu;
-static SDL_Window *window = NULL;
-static SDL_Renderer *renderer = NULL;
 
 int main(int argc, char *argv[]){
   if(argc != 2){
