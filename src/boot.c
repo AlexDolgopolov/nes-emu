@@ -54,6 +54,7 @@ void boot(const char* path){
 
 	for(uint32_t i=0;i<psize;i++){
 		write_ram(i+0x8000, temp_prg_mem[i]);
+		if(rom_meta.prg_rom_size == 1) write_ram(i + 0x8000 + 16384, temp_prg_mem[i]);
 	}
 
 	read_rom_data(nes_file, temp_chr_mem, ssize);

@@ -22,6 +22,7 @@ const uint32_t nes_palette[64] = {
 };
 
 uint32_t framebuffer[256 * 240];
+uint8_t  bg_opaque[256] = {1};
 
 uint32_t* get_framebuffer_ptr(){
 	return framebuffer;
@@ -31,25 +32,22 @@ void write_oam_data(uint8_t addr, uint8_t data){
 	oam_memory[addr] = data;
 }
 
-
-void ppu_render_frame(){
-	// background render
+void ppu_render_line(uint16_t line){
 	uint16_t scroll_x = ppu.x_pos + (ppu.ppuctrl & 0x01) * 256;
 	uint16_t scroll_y = ppu.y_pos + ((ppu.ppuctrl >> 1) & 0x01) * 240;
-	for(int screen_y = 0; screen_y < 240; screen_y++){
-		for(int screen_x = 0; screen_x < 256; screen_x++){
-		    uint16_t world_x = (screen_x + scroll_x) % 512;
-        	uint16_t world_y = (screen_y + scroll_y) % 480;
+	uint16_t world_y = (line + scroll_y) % 480;
+	uint16_t local_y = world_y % 240;
+	uint16_t tile_y = local_y / 8;
+	uint16_t pixel_y = local_y % 8;
+	for(int screen_x = 0; screen_x < 256; screen_x++){
+			uint16_t world_x = (screen_x + scroll_x) % 512;
 			
         	uint16_t nametable_base = 0x2000 + (world_x / 256) * 0x0400 + (world_y / 240) * 0x0800;
        
         	uint16_t local_x = world_x % 256;
-        	uint16_t local_y = world_y % 240;
         
         	uint16_t tile_x = local_x / 8;
-        	uint16_t tile_y = local_y / 8;
         	uint16_t pixel_x = local_x % 8;
-        	uint16_t pixel_y = local_y % 8;
         
         	uint16_t tile_id = ppu_read(nametable_base + tile_y * 32 + tile_x);
         
@@ -66,51 +64,59 @@ void ppu_render_frame(){
         	uint16_t hb = ppu_read(tile_addr + pixel_y + 8);
         	uint16_t bit = 7 - pixel_x;
         	uint16_t color_idx = ((hb >> bit) & 1) << 1 | ((lb >> bit) & 1);
-		     
+		    
         	// Цвет
         	uint16_t color_code = (color_idx == 0) ? ppu_read(0x3F00) : ppu_read(0x3F00 + palette_number*4 + color_idx);
-        
-        	framebuffer[screen_y * 256 + screen_x] = nes_palette[color_code & 0x3f];
-		}	
-	}      
+        	bg_opaque[screen_x] = (color_idx != 0) ? 1 : 0;
+        	framebuffer[line * 256 + screen_x] = nes_palette[color_code & 0x3f];
+	}
 	// sprite render
 	uint16_t base_addr = (ppu.ppuctrl & (1 << 3)) != 0 ? 0x1000 : 0x0000;
 	uint8_t* sprite_data = &oam_memory[252];
 	for(int sprite = 63; sprite >= 0; sprite--){
-		uint8_t screen_y = sprite_data[0]+1;
+		uint16_t screen_y = sprite_data[0]+1;
+		uint8_t row = line - screen_y;
 		uint8_t tile_id = sprite_data[1];
 		uint8_t attributes = sprite_data[2];
 		uint8_t oam_x = sprite_data[3];
 		sprite_data-=4;
-		if(screen_y >= 240) continue;
+		if(line < screen_y || line > (screen_y +7) || screen_y >= 240) continue;
 		uint16_t tile_addr = base_addr + tile_id * 16;
 		uint8_t palette_number = attributes & 0x03;          // биты 0-1
 		uint8_t priority       = (attributes >> 5) & 0x01;   // бит 5
 		uint8_t flip_h         = (attributes >> 6) & 0x01;   // бит 6
 		uint8_t flip_v         = (attributes >> 7) & 0x01;   // бит 7
-		for(uint8_t row = 0; row < 8;row++){
-			uint8_t actual_row = flip_v == 1 ? 7 - row : row;
-			uint8_t lb = ppu_read(tile_addr + actual_row);       // младший битплейн
-			uint8_t hb = ppu_read(tile_addr + actual_row + 8);   // старший битплейн
-			for(uint8_t col = 0; col < 8;col++){
-				uint8_t bit_position = flip_h == 1 ? col : 7 - col;
-				uint8_t low_bit  = (lb >> bit_position) & 1;
-				uint8_t high_bit = (hb >> bit_position) & 1;
-				uint8_t color_idx = (high_bit << 1) | low_bit;
-				if(color_idx == 0) continue;
-				uint16_t px = oam_x + col;
-				if(px >= 256) continue;
-				uint8_t py = screen_y + row;
-				if(py >= 240) continue;
-				if(priority == 1 && (framebuffer[py*256+px] != nes_palette[ppu_read(0x3F00)])) continue;
-				uint8_t color_code = ppu_read(0x3F10 + palette_number * 4 + color_idx);
-				framebuffer[py * 256 + px] = nes_palette[color_code & 0x3f];
-			}	
-		}
+		uint8_t actual_row = flip_v == 1 ? 7 - row : row;
+		uint8_t lb = ppu_read(tile_addr + actual_row);       // младший битплейн
+		uint8_t hb = ppu_read(tile_addr + actual_row + 8);   // старший битплейн
+		for(uint8_t col = 0; col < 8;col++){
+			uint8_t bit_position = flip_h == 1 ? col : 7 - col;
+			uint8_t low_bit  = (lb >> bit_position) & 1;
+			uint8_t high_bit = (hb >> bit_position) & 1;
+			uint8_t color_idx = (high_bit << 1) | low_bit;
+			uint16_t px = oam_x + col;
+			if(color_idx == 0) continue;
+			if(sprite == 0){
+				printf("[\n");
+				printf("sprite0: %d, %d\n", px, line);
+				printf("bg_opaque = %d\n", bg_opaque[px]);
+				printf("]\n");
+				if(
+					//(bg_opaque[px] == true) && 
+					(ppu.ppumask & 0x18)){
+					// sprite 0 hit
+					printf("sprite 0 hit\n");
+					ppu.ppu_status |= 1 << 6;
+				}	
+			}
+			if(px >= 256) continue;
+			if(priority == 1 && (bg_opaque[px] != 0)) continue;
+			uint8_t color_code = ppu_read(0x3F10 + palette_number * 4 + color_idx);
+			framebuffer[line * 256 + px] = nes_palette[color_code & 0x3f];
+		}	
 	}
-
-	framebuffero_output();
 }
+
 
 void ppu_powerup(){
 	ppu_vblank_nmi = 0;
@@ -137,8 +143,8 @@ void ppu_tick(){
 		ppu.cycle = 0;
 		ppu.scanline++;
 	}
-	if((ppu.scanline == (oam_memory[0]+1)) && ppu.cycle == 1 && (ppu.ppumask & 0x18)) ppu.ppu_status |= 1 << 6;
-	if((ppu.scanline == 240) && (ppu.cycle == 1)) ppu_render_frame();
+	if((ppu.scanline < 240) && (ppu.cycle == 1)) ppu_render_line(ppu.scanline);
+	if((ppu.scanline == 240) && (ppu.cycle == 1)) framebuffero_output();
 	if((ppu.scanline == 241) && (ppu.cycle == 1)) ppu.ppu_status |= 1 << 7;
 	if((ppu.scanline == 261) && (ppu.cycle == 1)) ppu.ppu_status &= ~(0b111 << 5);
 	if(ppu.scanline == 262){

@@ -36,6 +36,8 @@ typedef struct{
 	uint8_t oam_addr;
 	uint16_t current_vram_addr;
 	uint8_t ppudata_buffer;
+	uint16_t scroll_t;
+	uint8_t fine_x;
 } PPUState;
 
 uint32_t* get_framebuffer_ptr();
